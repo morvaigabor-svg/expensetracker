@@ -1,154 +1,244 @@
 <script>
 let selectedReceipts = [];
 
-window.onload = function() {
+// DOM betöltése után azonnal indítunk
+document.addEventListener("DOMContentLoaded", function() {
 
-  /* Mai dátum automatikus beállítása */
-  const dateField = document.getElementById("date");
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, "0");
-  const day = String(today.getDate()).padStart(2, "0");
-  dateField.value = `${year}-${month}-${day}`;
+  /* 1. Mai dátum automatikus beállítása */
+  try {
+    const dateField = document.getElementById("date");
+    if (dateField) {
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, "0");
+      const day = String(today.getDate()).padStart(2, "0");
+      dateField.value = year + "-" + month + "-" + day;
+    }
+    
+    const amountField = document.getElementById("amount");
+    if (amountField) amountField.focus();
+  } catch (e) {
+    console.error("Dátum beállítási hiba:", e);
+  }
 
-  /* Összeg mező fókusz */
-  document.getElementById("amount").focus();
+  /* 2. Beállítások betöltése Sheetsből */
+  loadSettings();
 
-  /* Beállítások betöltése Sheetsből */
-  google.script.run
-    .withSuccessHandler(function(data) {
-      const costCenterSelect = document.getElementById("costCenter");
-      data.costCenters.forEach(function(item) {
-        const option = document.createElement("option");
-        option.value = item;
-        option.textContent = item;
-        costCenterSelect.appendChild(option);
-      });
+  /* 3. Fő mentés gomb eseménykezelő (Ellenőrzéssel) */
+  const saveBtn = document.getElementById("saveButton");
+  if (saveBtn) {
+    saveBtn.addEventListener("click", function() {
+      const amount = document.getElementById("amount").value;
+      const date = document.getElementById("date").value;
+      const costCenter = document.getElementById("costCenter").value;
+      const paymentMethod = document.getElementById("paymentMethod").value;
+      const comment = document.getElementById("comment").value;
 
-      const paymentSelect = document.getElementById("paymentMethod");
-      data.paymentMethods.forEach(function(item) {
-        const option = document.createElement("option");
-        option.value = item;
-        option.textContent = item;
-        paymentSelect.appendChild(option);
-      });
-    })
-    .getSettings();
+      if (!amount) { alert("Kérlek add meg az összeget!"); return; }
+      if (!costCenter) { alert("Kérlek válassz költséghelyet!"); return; }
+      if (!paymentMethod) { alert("Kérlek válassz fizetési módot!"); return; }
 
-  /* Űrlap ellenőrzése és megerősítő ablak megnyitása */
-  document.getElementById("saveButton").addEventListener("click", function() {
-    const amount = document.getElementById("amount").value;
-    const date = document.getElementById("date").value;
-    const costCenter = document.getElementById("costCenter").value;
-    const paymentMethod = document.getElementById("paymentMethod").value;
-    const comment = document.getElementById("comment").value;
+      const expense = {
+        date: date,
+        amount: Number(amount),
+        costCenter: costCenter,
+        paymentMethod: paymentMethod,
+        comment: comment
+      };
 
-    if (!amount) { alert("Kérlek add meg az összeget!"); return; }
-    if (!costCenter) { alert("Kérlek válassz költséghelyet!"); return; }
-    if (!paymentMethod) { alert("Kérlek válassz fizetési módot!"); return; }
+      window.currentExpense = expense;
 
-    const expense = {
-      date: date,
-      amount: Number(amount),
-      costCenter: costCenter,
-      paymentMethod: paymentMethod,
-      comment: comment
-    };
-
-    showSummary(expense);
-  });
-
-  /* Megerősített mentés gomb eseménykezelője (SZEKVENCIÁLIS MENTÉS) */
-  document.getElementById("confirmButton").addEventListener("click", async function() {
-    const expense = window.currentExpense;
-    const confirmBtn = document.getElementById("confirmButton");
-    const cancelBtn = document.getElementById("cancelButton");
-    const statusBox = document.getElementById("statusProgress");
-
-    // UI zárolása
-    confirmBtn.disabled = true;
-    cancelBtn.disabled = true;
-    statusBox.classList.remove("hidden");
-    statusBox.innerHTML = "⏳ Előkészítés...";
-
-    try {
-      // 1. LÉPÉS: Egyedi ID generálása
-      const expenseId = await runGoogleScript("getExpenseId", expense.costCenter);
-      const imageUrls = [];
-
-      // 2. LÉPÉS: Képek feltöltése egyenként (ha vannak)
-      for (let i = 0; i < selectedReceipts.length; i++) {
-        statusBox.innerHTML = `⏳ ${i + 1}. kép feltöltve...`;
-        const base64Data = await fileToBase64(selectedReceipts[i]);
-        const uploadResult = await runGoogleScript("uploadExpenseImage", base64Data, expenseId, i + 1);
-        imageUrls.push(uploadResult.url);
+      // BLOKK ELLENŐRZÉSE:
+      if (selectedReceipts.length === 0) {
+        // Ha nincs fotó csatolva, felugrik a figyelmeztető ablak
+        document.getElementById("noReceiptDialog").classList.remove("hidden");
+      } else {
+        // Ha van fotó, egyből megyünk a mentés megerősítésre
+        showSummary(expense);
       }
+    });
+  }
 
-      // 3. LÉPÉS: Adatok kiírása a Google Sheet-be
-      statusBox.innerHTML = "⏳ Adatok feltöltése...";
-      await runGoogleScript("saveExpense", expense, imageUrls, expenseId);
+  /* 3/A. "Vissza" gomb (ha nincs blokk csatolva) */
+  const noReceiptBackBtn = document.getElementById("noReceiptBackButton");
+  if (noReceiptBackBtn) {
+    noReceiptBackBtn.addEventListener("click", function() {
+      document.getElementById("noReceiptDialog").classList.add("hidden");
+    });
+  }
 
-      // 4. LÉPÉS: Befejezés
-      statusBox.innerHTML = "✅ Mentés kész!";
+  /* 3/B. "Mentés fotózott blokk nélkül" gomb */
+  const noReceiptContinueBtn = document.getElementById("noReceiptContinueButton");
+  if (noReceiptContinueBtn) {
+    noReceiptContinueBtn.addEventListener("click", function() {
+      document.getElementById("noReceiptDialog").classList.add("hidden");
+      showSummary(window.currentExpense);
+    });
+  }
 
-      setTimeout(() => {
-        document.getElementById("confirmDialog").classList.add("hidden");
-        statusBox.classList.add("hidden");
-        confirmBtn.disabled = false;
-        cancelBtn.disabled = false;
-        resetForm();
-      }, 1200);
+  /* 4. Megerősített mentés gomb (Szekvenciális folyamat) */
+  const confirmBtn = document.getElementById("confirmButton");
+  if (confirmBtn) {
+    confirmBtn.addEventListener("click", function() {
+      startSequentialSave();
+    });
+  }
 
-    } catch (error) {
-      alert("⚠ Hiba történt a mentés során:\n" + error);
-      console.error(error);
-      statusBox.classList.add("hidden");
-      confirmBtn.disabled = false;
-      cancelBtn.disabled = false;
-    }
-  });
+  /* 5. Mégsem gomb */
+  const cancelBtn = document.getElementById("cancelButton");
+  if (cancelBtn) {
+    cancelBtn.addEventListener("click", function() {
+      document.getElementById("confirmDialog").classList.add("hidden");
+    });
+  }
 
-  /* Mégsem gomb */
-  document.getElementById("cancelButton").addEventListener("click", function() {
-    document.getElementById("confirmDialog").classList.add("hidden");
-  });
+  /* 6. Blokk fotó eseménykezelők */
+  const receiptInput = document.getElementById("receipt");
+  if (receiptInput) {
+    receiptInput.addEventListener("change", function(event) {
+      const file = event.target.files[0];
+      if (file) {
+        selectedReceipts.push(file);
+        showReceiptList();
+        showReceiptDialog();
+      }
+    });
+  }
 
-  /* Blokk gombok eseményei */
-  document.getElementById("receipt").addEventListener("change", function(event) {
-    const file = event.target.files[0];
-    if (file) {
-      selectedReceipts.push(file);
-      showReceiptList();
-      showReceiptDialog();
-    }
-  });
+  const moreBtn = document.getElementById("moreReceiptButton");
+  if (moreBtn) {
+    moreBtn.addEventListener("click", function() {
+      document.getElementById("receiptDialog").classList.add("hidden");
+      document.getElementById("receipt").click();
+    });
+  }
 
-  document.getElementById("moreReceiptButton").addEventListener("click", function() {
-    document.getElementById("receiptDialog").classList.add("hidden");
-    document.getElementById("receipt").click();
-  });
-
-  document.getElementById("finishReceiptButton").addEventListener("click", function() {
-    document.getElementById("receiptDialog").classList.add("hidden");
-  });
+  const finishBtn = document.getElementById("finishReceiptButton");
+  if (finishBtn) {
+    finishBtn.addEventListener("click", function() {
+      document.getElementById("receiptDialog").classList.add("hidden");
+    });
+  }
 
 });
 
-/* Segédfüggvény: Promisified google.script.run */
-function runGoogleScript(functionName, ...args) {
-  return new Promise((resolve, reject) => {
-    google.script.run
-      .withSuccessHandler(resolve)
-      .withFailureHandler(reject)[functionName](...args);
-  });
+/* Beállítások letöltése a szerverről */
+function loadSettings() {
+  google.script.run
+    .withSuccessHandler(function(data) {
+      if (!data) return;
+      
+      const costCenterSelect = document.getElementById("costCenter");
+      if (costCenterSelect && data.costCenters) {
+        data.costCenters.forEach(function(item) {
+          const option = document.createElement("option");
+          option.value = item;
+          option.textContent = item;
+          costCenterSelect.appendChild(option);
+        });
+      }
+
+      const paymentSelect = document.getElementById("paymentMethod");
+      if (paymentSelect && data.paymentMethods) {
+        data.paymentMethods.forEach(function(item) {
+          const option = document.createElement("option");
+          option.value = item;
+          option.textContent = item;
+          paymentSelect.appendChild(option);
+        });
+      }
+    })
+    .withFailureHandler(function(err) {
+      console.error("Hiba a beállítások betöltésekor:", err);
+    })
+    .getSettings();
 }
 
-/* Segédfüggvény: Fájl beolvasása Base64 formátumba */
+/* Szekvenciális mentési folyamat elindítása */
+function startSequentialSave() {
+  const expense = window.currentExpense;
+  const confirmBtn = document.getElementById("confirmButton");
+  const cancelBtn = document.getElementById("cancelButton");
+  const statusBox = document.getElementById("statusProgress");
+
+  confirmBtn.disabled = true;
+  cancelBtn.disabled = true;
+  statusBox.classList.remove("hidden");
+  statusBox.innerHTML = "⏳ ID generálása...";
+
+  // 1. LÉPÉS: ID Lekérése
+  google.script.run
+    .withSuccessHandler(function(expenseId) {
+      // 2. LÉPÉS: Képek feltöltése egymás után (0. indextől)
+      uploadImagesSequentially(expense, expenseId, 0, []);
+    })
+    .withFailureHandler(function(err) {
+      handleSaveError("ID generálási hiba: " + err, confirmBtn, cancelBtn, statusBox);
+    })
+    .getExpenseId(expense.costCenter);
+}
+
+// Rekurzív képfeltöltő lánc
+function uploadImagesSequentially(expense, expenseId, index, imageUrls) {
+  const statusBox = document.getElementById("statusProgress");
+  const confirmBtn = document.getElementById("confirmButton");
+  const cancelBtn = document.getElementById("cancelButton");
+
+  if (index < selectedReceipts.length) {
+    statusBox.innerHTML = "⏳ " + (index + 1) + "/" + selectedReceipts.length + ". kép feltöltése...";
+    
+    fileToBase64(selectedReceipts[index])
+      .then(function(base64Data) {
+        google.script.run
+          .withSuccessHandler(function(uploadResult) {
+            imageUrls.push(uploadResult.url);
+            uploadImagesSequentially(expense, expenseId, index + 1, imageUrls);
+          })
+          .withFailureHandler(function(err) {
+            handleSaveError("Képfeltöltési hiba: " + err, confirmBtn, cancelBtn, statusBox);
+          })
+          .uploadExpenseImage(base64Data, expenseId, index + 1);
+      })
+      .catch(function(err) {
+        handleSaveError("Képolvasási hiba: " + err, confirmBtn, cancelBtn, statusBox);
+      });
+
+  } else {
+    // 3. LÉPÉS: MINDEN KÉP FENT VAN (VAGY NEM VOLT KÉP) -> Sheet mentés
+    statusBox.innerHTML = "⏳ Adatok rögzítése a táblázatban...";
+    
+    google.script.run
+      .withSuccessHandler(function() {
+        statusBox.innerHTML = "✅ Mentés kész!";
+        setTimeout(function() {
+          document.getElementById("confirmDialog").classList.add("hidden");
+          statusBox.classList.add("hidden");
+          confirmBtn.disabled = false;
+          cancelBtn.disabled = false;
+          resetForm();
+        }, 1500);
+      })
+      .withFailureHandler(function(err) {
+        handleSaveError("Sheet mentési hiba: " + err, confirmBtn, cancelBtn, statusBox);
+      })
+      .saveExpense(expense, imageUrls, expenseId);
+  }
+}
+
+function handleSaveError(msg, confirmBtn, cancelBtn, statusBox) {
+  alert("⚠ " + msg);
+  console.error(msg);
+  statusBox.classList.add("hidden");
+  confirmBtn.disabled = false;
+  cancelBtn.disabled = false;
+}
+
+/* Fájl beolvasása Base64 formátumba */
 function fileToBase64(file) {
-  return new Promise((resolve, reject) => {
+  return new Promise(function(resolve, reject) {
     const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = error => reject(error);
+    reader.onload = function() { resolve(reader.result); };
+    reader.onerror = function(error) { reject(error); };
     reader.readAsDataURL(file);
   });
 }
@@ -156,14 +246,13 @@ function fileToBase64(file) {
 function showSummary(expense) {
   window.currentExpense = expense;
   const summary = document.getElementById("summary");
-  summary.innerHTML = `
-    <p><strong>Dátum:</strong> ${expense.date}</p>
-    <p><strong>Összeg:</strong> ${expense.amount} Ft</p>
-    <p><strong>Költséghely:</strong> ${expense.costCenter}</p>
-    <p><strong>Fizetés:</strong> ${expense.paymentMethod}</p>
-    <p><strong>Megjegyzés:</strong> ${expense.comment}</p>
-    <p><strong>Csatolt fotók:</strong> ${selectedReceipts.length} db</p>
-  `;
+  summary.innerHTML = 
+    "<p><strong>Dátum:</strong> " + expense.date + "</p>" +
+    "<p><strong>Összeg:</strong> " + expense.amount + " Ft</p>" +
+    "<p><strong>Költséghely:</strong> " + expense.costCenter + "</p>" +
+    "<p><strong>Fizetés:</strong> " + expense.paymentMethod + "</p>" +
+    "<p><strong>Megjegyzés:</strong> " + expense.comment + "</p>" +
+    "<p><strong>Csatolt fotók:</strong> " + selectedReceipts.length + " db</p>";
   document.getElementById("confirmDialog").classList.remove("hidden");
 }
 
