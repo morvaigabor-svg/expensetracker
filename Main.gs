@@ -32,9 +32,3 @@ function saveExpense(expense){
   return saveExpenseData(expense);
 
 }
-
-function createExpenseId(costCenter){
-
-  return generateExpenseId(costCenter);
-
-}
