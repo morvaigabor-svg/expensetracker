@@ -25,6 +25,6 @@ function getExpenseId(costCenter) {
   return generateExpenseId(costCenter);
 }
 
-function saveExpense(expense, imageUrls, expenseId) {
-  return saveExpenseData(expense, imageUrls, expenseId);
+function saveExpense(expense, imageUrls, expenseId, gpsCoords) {
+  return saveExpenseData(expense, imageUrls, expenseId, gpsCoords);
 }

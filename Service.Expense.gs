@@ -1,7 +1,7 @@
 /**
  * Expense mentési szolgáltatás
  */
-function saveExpenseData(expense, imageUrls = [], customId = null) {
+function saveExpenseData(expense, imageUrls = [], customId = null, gpsCoords = null) {
   try {
     const ss = SpreadsheetApp.openById(CONFIG.SHEET_ID);
     const sheet = ss.getSheetByName(APP.SHEETS.EXPENSES);
@@ -12,51 +12,56 @@ function saveExpenseData(expense, imageUrls = [], customId = null) {
 
     const id = customId || generateExpenseId(expense.costCenter);
 
-    // 1. Sor hozzáadása a táblázathoz (E oszlop egyelőre üresen marad)
+    // Beküldő Google e-mail címének kiolvasása
+    const userEmail = Session.getActiveUser().getEmail() || "Ismeretlen";
+
     sheet.appendRow([
       expense.date,          // A oszlop: Dátum
       expense.costCenter,    // B oszlop: Költséghely
       expense.amount,        // C oszlop: Összeg
       expense.paymentMethod, // D oszlop: Fizetési mód
-      "",                    // E oszlop: Blokk (ezt a következő lépésben töltjük fel)
+      "",                    // E oszlop: Blokk (RichText-tel töltjük fel)
       expense.comment,       // F oszlop: Megjegyzés
-      "",                    // G oszlop: Beküldő
-      "",                    // H oszlop: GPS
+      userEmail,             // G oszlop: Beküldő e-mail címe
+      "",                    // H oszlop: GPS (RichText-tel töltjük fel)
       new Date(),            // I oszlop: Rögzítés ideje
       id                     // J oszlop: Egyedi azonosító
     ]);
 
     const lastRow = sheet.getLastRow();
 
-    // 2. Ha vannak feltöltött képek, megalkotjuk a többszörös Hyperlinket
+    // 1. Blokk képek linkelése (E oszlop = 5. oszlop)
     if (imageUrls && imageUrls.length > 0) {
       let labels = [];
       for (let i = 0; i < imageUrls.length; i++) {
         labels.push(String(i + 1));
       }
       
-      // Szöveg létrehozása, pl: "1 | 2 | 3"
       const fullText = labels.join(" | "); 
       let richTextBuilder = SpreadsheetApp.newRichTextValue().setText(fullText);
 
-      // Linkek ráillesztése az egyes sorszámok karaktereire
       let currentOffset = 0;
       for (let i = 0; i < imageUrls.length; i++) {
         let label = String(i + 1);
         let start = currentOffset;
         let end = start + label.length;
 
-        // Link hozzárendelése az adott sorszámhoz
         richTextBuilder.setLinkUrl(start, end, imageUrls[i]);
-        
-        // Léptetés a következő sorszámra (" | " hossza 3 karakter)
         currentOffset = end + 3; 
       }
 
-      const richText = richTextBuilder.build();
+      sheet.getRange(lastRow, 5).setRichTextValue(richTextBuilder.build());
+    }
 
-      // Formázott, több-linkes szöveg beírása az E oszlopba (5. oszlop)
-      sheet.getRange(lastRow, 5).setRichTextValue(richText);
+    // 2. GPS koordináta linkelése (H oszlop = 8. oszlop)
+    if (gpsCoords && gpsCoords.lat && gpsCoords.lng) {
+      const mapUrl = "https://maps.google.com/?q=" + gpsCoords.lat + "," + gpsCoords.lng;
+      const gpsRichText = SpreadsheetApp.newRichTextValue()
+        .setText("📍 Térkép")
+        .setLinkUrl(mapUrl)
+        .build();
+
+      sheet.getRange(lastRow, 8).setRichTextValue(gpsRichText);
     }
 
     writeLog("INFO", "Expense", "Mentés sikeres: " + id);

@@ -1,7 +1,6 @@
 <script>
 let selectedReceipts = [];
 
-// DOM betöltése után azonnal indítunk
 document.addEventListener("DOMContentLoaded", function() {
 
   /* 1. Mai dátum automatikus beállítása */
@@ -24,7 +23,7 @@ document.addEventListener("DOMContentLoaded", function() {
   /* 2. Beállítások betöltése Sheetsből */
   loadSettings();
 
-  /* 3. Fő mentés gomb eseménykezelő (Ellenőrzéssel) */
+  /* 3. Fő mentés gomb eseménykezelő */
   const saveBtn = document.getElementById("saveButton");
   if (saveBtn) {
     saveBtn.addEventListener("click", function() {
@@ -48,18 +47,15 @@ document.addEventListener("DOMContentLoaded", function() {
 
       window.currentExpense = expense;
 
-      // BLOKK ELLENŐRZÉSE:
       if (selectedReceipts.length === 0) {
-        // Ha nincs fotó csatolva, felugrik a figyelmeztető ablak
         document.getElementById("noReceiptDialog").classList.remove("hidden");
       } else {
-        // Ha van fotó, egyből megyünk a mentés megerősítésre
         showSummary(expense);
       }
     });
   }
 
-  /* 3/A. "Vissza" gomb (ha nincs blokk csatolva) */
+  /* 3/A. Vissza gomb */
   const noReceiptBackBtn = document.getElementById("noReceiptBackButton");
   if (noReceiptBackBtn) {
     noReceiptBackBtn.addEventListener("click", function() {
@@ -67,7 +63,7 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   }
 
-  /* 3/B. "Mentés fotózott blokk nélkül" gomb */
+  /* 3/B. Mentés blokk nélkül gomb */
   const noReceiptContinueBtn = document.getElementById("noReceiptContinueButton");
   if (noReceiptContinueBtn) {
     noReceiptContinueBtn.addEventListener("click", function() {
@@ -76,7 +72,7 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   }
 
-  /* 4. Megerősített mentés gomb (Szekvenciális folyamat) */
+  /* 4. Megerősített mentés gomb */
   const confirmBtn = document.getElementById("confirmButton");
   if (confirmBtn) {
     confirmBtn.addEventListener("click", function() {
@@ -122,7 +118,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
 });
 
-/* Beállítások letöltése a szerverről */
+/* Beállítások letöltése */
 function loadSettings() {
   google.script.run
     .withSuccessHandler(function(data) {
@@ -154,7 +150,7 @@ function loadSettings() {
     .getSettings();
 }
 
-/* Szekvenciális mentési folyamat elindítása */
+/* Szekvenciális mentési folyamat (GPS-szel) */
 function startSequentialSave() {
   const expense = window.currentExpense;
   const confirmBtn = document.getElementById("confirmButton");
@@ -164,22 +160,26 @@ function startSequentialSave() {
   confirmBtn.disabled = true;
   cancelBtn.disabled = true;
   statusBox.classList.remove("hidden");
-  statusBox.innerHTML = "⏳ ID generálása...";
+  statusBox.innerHTML = "⏳ GPS és ID lekérése...";
 
-  // 1. LÉPÉS: ID Lekérése
-  google.script.run
-    .withSuccessHandler(function(expenseId) {
-      // 2. LÉPÉS: Képek feltöltése egymás után (0. indextől)
-      uploadImagesSequentially(expense, expenseId, 0, []);
-    })
-    .withFailureHandler(function(err) {
-      handleSaveError("ID generálási hiba: " + err, confirmBtn, cancelBtn, statusBox);
-    })
-    .getExpenseId(expense.costCenter);
+  // GPS pozíció és ID lekérése
+  Promise.all([
+    getGPSLocation(),
+    runGoogleScript("getExpenseId", expense.costCenter)
+  ])
+  .then(function(results) {
+    const gpsCoords = results[0];
+    const expenseId = results[1];
+
+    uploadImagesSequentially(expense, expenseId, gpsCoords, 0, []);
+  })
+  .catch(function(err) {
+    handleSaveError("Előkészítési hiba: " + err, confirmBtn, cancelBtn, statusBox);
+  });
 }
 
 // Rekurzív képfeltöltő lánc
-function uploadImagesSequentially(expense, expenseId, index, imageUrls) {
+function uploadImagesSequentially(expense, expenseId, gpsCoords, index, imageUrls) {
   const statusBox = document.getElementById("statusProgress");
   const confirmBtn = document.getElementById("confirmButton");
   const cancelBtn = document.getElementById("cancelButton");
@@ -192,7 +192,7 @@ function uploadImagesSequentially(expense, expenseId, index, imageUrls) {
         google.script.run
           .withSuccessHandler(function(uploadResult) {
             imageUrls.push(uploadResult.url);
-            uploadImagesSequentially(expense, expenseId, index + 1, imageUrls);
+            uploadImagesSequentially(expense, expenseId, gpsCoords, index + 1, imageUrls);
           })
           .withFailureHandler(function(err) {
             handleSaveError("Képfeltöltési hiba: " + err, confirmBtn, cancelBtn, statusBox);
@@ -204,7 +204,7 @@ function uploadImagesSequentially(expense, expenseId, index, imageUrls) {
       });
 
   } else {
-    // 3. LÉPÉS: MINDEN KÉP FENT VAN (VAGY NEM VOLT KÉP) -> Sheet mentés
+    // Adatok mentése Sheet-be (GPS adatokkal és E-maillel)
     statusBox.innerHTML = "⏳ Adatok rögzítése a táblázatban...";
     
     google.script.run
@@ -221,8 +221,38 @@ function uploadImagesSequentially(expense, expenseId, index, imageUrls) {
       .withFailureHandler(function(err) {
         handleSaveError("Sheet mentési hiba: " + err, confirmBtn, cancelBtn, statusBox);
       })
-      .saveExpense(expense, imageUrls, expenseId);
+      .saveExpense(expense, imageUrls, expenseId, gpsCoords);
   }
+}
+
+/* Segédfüggvény: GPS Koordináták lekérése (Megbízhatóbb beállításokkal) */
+function getGPSLocation() {
+  return new Promise(function(resolve) {
+    if (!navigator.geolocation) {
+      console.warn("GPS nem támogatott ebben a böngészőben.");
+      resolve(null);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      function(position) {
+        console.log("GPS siker:", position.coords.latitude, position.coords.longitude);
+        resolve({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        });
+      },
+      function(error) {
+        console.warn("GPS hiba vagy időtúllépés:", error.message);
+        resolve(null); // Nem blokkoljuk a mentést GPS hiányában
+      },
+      { 
+        timeout: 10000,           // 10 másodpercig vár a válaszra
+        enableHighAccuracy: false,// Hálózati/Wi-Fi alapú gyors helymeghatározás
+        maximumAge: 60000         // 1 percen belüli előző pozíció is elfogadható
+      }
+    );
+  });
 }
 
 function handleSaveError(msg, confirmBtn, cancelBtn, statusBox) {
@@ -233,7 +263,14 @@ function handleSaveError(msg, confirmBtn, cancelBtn, statusBox) {
   cancelBtn.disabled = false;
 }
 
-/* Fájl beolvasása Base64 formátumba */
+function runGoogleScript(functionName, ...args) {
+  return new Promise(function(resolve, reject) {
+    google.script.run
+      .withSuccessHandler(resolve)
+      .withFailureHandler(reject)[functionName](...args);
+  });
+}
+
 function fileToBase64(file) {
   return new Promise(function(resolve, reject) {
     const reader = new FileReader();
