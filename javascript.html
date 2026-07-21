@@ -1,0 +1,656 @@
+<script>
+
+let selectedReceipts = [];;
+
+window.onload = function(){
+
+console.log("MAIN WINDOW LOAD FUT");
+
+/*
+Mentés gomb esemény
+*/
+
+
+document
+.getElementById("saveButton")
+.addEventListener(
+"click",
+
+
+function(){
+    const amount =
+    document
+    .getElementById("amount")
+    .value;
+
+    const date =
+    document
+    .getElementById("date")
+    .value;
+
+    const costCenter =
+    document
+    .getElementById("costCenter")
+    .value;
+
+    const paymentMethod =
+    document
+    .getElementById("paymentMethod")
+    .value;
+
+    const comment =
+    document
+    .getElementById("comment")
+    .value;
+
+
+    if(!amount){
+
+      alert(
+      "Kérlek add meg az összeget!"
+      );
+      return;
+    } 
+
+
+    if(!costCenter){
+    alert(
+    "Kérlek válassz költséghelyet!"
+    );
+
+    return;
+    }
+
+
+    if(!paymentMethod){
+
+    alert(
+    "Kérlek válassz fizetési módot!"
+    );
+
+    return;
+
+    }
+
+
+
+  const expense = {
+
+  date: date,
+
+  amount: Number(amount),
+
+  costCenter: costCenter,
+
+  paymentMethod: paymentMethod,
+
+  comment: comment
+
+  };
+
+
+    console.log(expense);
+    showSummary(expense);
+});
+
+
+/*
+Mai dátum automatikus beállítása
+*/
+
+const dateField =
+document.getElementById("date");
+
+const today =
+new Date();
+
+const year =
+today.getFullYear();
+
+
+const month =
+String(today.getMonth()+1)
+.padStart(2,"0");
+
+
+const day =
+String(today.getDate())
+.padStart(2,"0");
+
+dateField.value =
+`${year}-${month}-${day}`;
+
+
+
+/*
+Összeg mező fókusz
+*/
+
+document
+.getElementById("amount")
+.focus();
+
+/*
+Beállítások betöltése Sheetsből
+*/
+
+google.script.run
+.withSuccessHandler(function(data){
+
+const costCenterSelect =
+document.getElementById("costCenter");
+
+data.costCenters.forEach(function(item){
+
+
+const option =
+document.createElement("option");
+
+
+option.value = item;
+
+option.textContent = item;
+
+
+costCenterSelect.appendChild(option);
+
+
+});
+
+
+
+const paymentSelect =
+document.getElementById("paymentMethod");
+
+data.paymentMethods.forEach(function(item){
+
+const option =
+document.createElement("option");
+
+option.value = item;
+
+option.textContent = item;
+
+
+paymentSelect.appendChild(option);
+
+});
+
+})
+.getSettings();
+
+
+
+/*
+Megerősített mentés gomb (confirm button működése)
+*/
+
+document
+.getElementById("confirmButton")
+.addEventListener(
+"click",
+function(){
+
+console.log("CONFIRM KATTINTÁS");
+
+const expense = window.currentExpense;
+console.log("EXPENSE:", expense);
+
+console.log("ID generálás indítása");
+google.script.run
+.withSuccessHandler(function(expenseId){
+
+    console.log(
+        "Generált ID:",
+        expenseId
+    );
+
+    expense.id = expenseId;
+
+    /*
+    Ha vannak képek,
+    először feltöltjük őket.
+    */
+
+    if(selectedReceipts.length > 0){
+
+        uploadReceipts(expenseId);
+
+    }
+    else{
+
+        saveExpenseAfterUpload(
+            expenseId,
+            []
+        );
+
+    }
+
+})
+
+.withFailureHandler(function(error){
+
+    document
+    .getElementById("statusMessage")
+    .innerHTML =
+    "⚠ ID generálási hiba";
+
+    console.error(error);
+
+})
+
+.createExpenseId(
+    expense.costCenter
+);
+
+});
+
+
+/*
+Mégsem gomb
+*/
+
+document
+.getElementById("cancelButton")
+.addEventListener(
+"click",
+function(){
+
+
+document
+.getElementById("confirmDialog")
+.classList
+.add("hidden");
+});
+
+};
+
+
+/*Költségösszegző ablak függvénye*/
+
+function showSummary(expense){
+
+window.currentExpense = expense;
+
+
+const summary =
+document.getElementById("summary");
+
+
+summary.innerHTML = `
+
+<p>
+Dátum:
+${expense.date}
+</p>
+
+<p>
+Összeg:
+${expense.amount} Ft
+</p>
+
+<p>
+Költséghely:
+${expense.costCenter}
+</p>
+
+<p>
+Fizetés:
+${expense.paymentMethod}
+</p>
+
+<p>
+Megjegyzés:
+${expense.comment}
+</p>
+
+`;
+
+
+document
+.getElementById("confirmDialog")
+.classList
+.remove("hidden");
+
+
+}
+
+
+
+/*Visszaállítás függvény*/
+function resetForm(){
+
+
+    document
+    .getElementById("amount")
+    .value = "";
+
+
+    document
+    .getElementById("comment")
+    .value = "";
+
+
+    document
+    .getElementById("costCenter")
+    .selectedIndex = 0;
+
+
+    document
+    .getElementById("paymentMethod")
+    .selectedIndex = 0;
+
+
+    document
+    .getElementById("amount")
+    .focus();
+
+    selectedReceipts = [];
+
+
+    document
+    .getElementById("receiptPreview")
+    .innerHTML = "";
+
+}
+
+
+window.addEventListener(
+"load",
+function(){
+
+/*
+Blokk kép kiválasztása
+*/
+
+console.log("Blokk feltöltés script betöltve");
+
+/*
+Blokk képek kezelése
+*/
+
+document
+.getElementById("receipt")
+.addEventListener(
+"change",
+function(event){
+
+
+const file =
+event.target.files[0];
+
+
+if(file){
+
+selectedReceipts.push(file);
+
+showReceiptList();
+
+showReceiptDialog();
+
+}
+
+
+});
+
+
+function showReceiptList(){
+
+
+const preview =
+document.getElementById(
+"receiptPreview"
+);
+
+
+preview.innerHTML = "";
+
+
+selectedReceipts.forEach(
+function(file,index){
+
+
+const item =
+document.createElement("p");
+
+
+item.textContent =
+(index+1)
++
+". kép: "
++
+file.name;
+
+
+preview.appendChild(item);
+
+
+});
+
+
+}
+
+
+
+function showReceiptDialog(){
+document
+.getElementById("receiptDialog")
+.classList
+.remove("hidden");
+
+
+}
+
+
+/*
+Újabb fotó készítése
+*/
+
+
+document
+.getElementById("moreReceiptButton")
+.addEventListener(
+"click",
+function(){
+
+
+document
+.getElementById("receiptDialog")
+.classList
+.add("hidden");
+
+
+document
+.getElementById("receipt")
+.click();
+
+
+});
+
+
+
+/*
+Fotózás befejezése
+*/
+
+
+document
+.getElementById("finishReceiptButton")
+.addEventListener(
+"click",
+function(){
+
+document
+.getElementById("receiptDialog")
+.classList
+.add("hidden");
+
+alert(
+selectedReceipts.length +
+" blokkfotó mentésre előkészítve."
+);
+
+});
+
+
+
+});
+
+
+
+/*
+Kép feltöltés Drive-ba
+*/
+
+/*
+==================================
+Blokkok feltöltése Drive-ba
+
+Feladata:
+- rákérdez, ha nincs blokk
+- feltölti az összes blokkfotót
+- összegyűjti a Drive linkeket
+- a legvégén elindítja
+  a Sheets mentést
+==================================
+*/
+
+function uploadReceipts(expenseId){
+
+    /*
+    ----------------------------------
+    Nincs blokkfotó
+    ----------------------------------
+    */
+
+    if(selectedReceipts.length === 0){
+
+        const continueWithoutReceipt = confirm(
+
+            "Nem csatoltál blokkfotót.\n\n" +
+            "Biztosan blokk nélkül szeretnéd menteni?"
+
+        );
+
+        if(!continueWithoutReceipt){
+
+            return;
+
+        }
+
+        saveExpenseAfterUpload(
+            expenseId,
+            []
+        );
+
+        return;
+
+    }
+
+
+    /*
+    ----------------------------------
+    Van blokkfotó
+    ----------------------------------
+    */
+
+    const total =
+    selectedReceipts.length;
+
+
+    let uploadedCount = 0;
+
+
+    /* Ide kerülneka Drive linkek */
+
+    let uploadedLinks = [];
+
+
+    /* Feltöltjük sorban az összes képet */
+
+    selectedReceipts.forEach(
+    function(file,index){
+
+        document
+        .getElementById("statusMessage")
+        .innerHTML =
+
+        "📷 Blokkok feltöltése (" +
+
+        (index + 1) +
+
+        "/" +
+
+        total +
+
+        ")...";
+
+
+        const reader =
+        new FileReader();
+
+
+        reader.onload =
+        function(e){
+
+            google.script.run
+
+            .withSuccessHandler(function(response){
+
+                /* Elmentjük a Drive linket */
+
+                uploadedLinks.push({
+
+                    number : index + 1,
+
+                    url : response.url
+
+                });
+
+                uploadedCount++;
+                /* Ha ez volt  az utolsó kép,   indulhat a Sheets mentés.  */
+
+                if(uploadedCount === total){
+
+                    saveExpenseAfterUpload(
+
+                        expenseId,
+
+                        uploadedLinks
+
+                    );
+                }
+            })
+
+            .withFailureHandler(function(error){
+
+                document
+                .getElementById("statusMessage")
+                .innerHTML =
+                "⚠ Blokk feltöltési hiba";
+
+                console.error(error);
+
+                alert(
+
+                    "A blokk feltöltése nem sikerült.\n\n"
+                    +
+                    error
+
+                );
+            })
+            .uploadExpenseImage(
+
+                e.target.result,
+
+                expenseId,
+
+                index + 1
+
+            );
+
+        };
+        reader.readAsDataURL(file);
+    });
+}
+</script>
