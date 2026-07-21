@@ -1,64 +1,21 @@
 <div id="confirmDialog" class="dialog hidden">
-
   <div class="dialog-content">
-
-    <h2>
-    Ellenőrizd a költést
-    </h2>
-
-
+    <h2>Ellenőrizd a költést</h2>
     <div id="summary"></div>
 
+    <!-- Élő folyamatjelző doboz -->
+    <div id="statusProgress" class="status-progress hidden"></div>
 
-    <button id="cancelButton">
-      Mégsem
-    </button>
-
-
-    <button id="confirmButton">
-      Mentés
-    </button>
-
-
+    <button id="cancelButton">Mégsem</button>
+    <button id="confirmButton">Mentés</button>
   </div>
-
 </div>
 
 <div id="receiptDialog" class="dialog hidden">
-
-
-<div class="dialog-content">
-
-
-<h2>
-Blokk fotó elkészült
-</h2>
-
-
-<p>
-Szeretnél még egy oldalt lefotózni?
-</p>
-
-
-<button 
-type="button"
-id="moreReceiptButton">
-
-📷 Újabb fotó
-
-</button>
-
-
-<button
-type="button"
-id="finishReceiptButton">
-
-✓ Kész
-
-</button>
-
-
-</div>
-
-
+  <div class="dialog-content">
+    <h2>Blokk fotó elkészült</h2>
+    <p>Szeretnél még egy oldalt lefotózni?</p>
+    <button type="button" id="moreReceiptButton">📷 Újabb fotó</button>
+    <button type="button" id="finishReceiptButton">✓ Kész</button>
+  </div>
 </div>

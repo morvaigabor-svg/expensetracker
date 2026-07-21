@@ -2,33 +2,29 @@
  * WebApp belépési pont
  */
 function doGet() {
-
   return HtmlService
     .createTemplateFromFile("index")
     .evaluate()
     .setTitle(APP.NAME);
-
 }
 
 /**
  * HTML include
  */
 function include(filename) {
-
   return HtmlService
     .createHtmlOutputFromFile(filename)
     .getContent();
-
 }
 
-function getSettings(){
-
-return getSettingsData();
-
+function getSettings() {
+  return getSettingsData();
 }
 
-function saveExpense(expense){
+function getExpenseId(costCenter) {
+  return generateExpenseId(costCenter);
+}
 
-  return saveExpenseData(expense);
-
+function saveExpense(expense, imageUrls, expenseId) {
+  return saveExpenseData(expense, imageUrls, expenseId);
 }

@@ -3,7 +3,6 @@
  * Google Drive szolgáltatás
  */
 
-
 /**
  * ExpenseTracker mappa elérése
  */
@@ -15,12 +14,9 @@ DriveApp.getFolderById(
 APP.DRIVE.FOLDER_ID
 );
 
-
 return folder;
 
-
 }
-
 
 /**
  * Drive kapcsolat teszt
@@ -83,66 +79,24 @@ file.getName()
 /**
  * Kép feltöltése Drive-ba
  */
-function uploadExpenseImage(
-imageData,
-expenseId,
-imageNumber
-){
+function uploadExpenseImage(imageData, expenseId, imageNumber) {
+  const folder = getExpenseFolder();
+  
+  const contentType = imageData.match(/data:(.*);base64/)[1];
+  const base64 = imageData.split(",")[1];
+  const bytes = Utilities.base64Decode(base64);
+  const extension = contentType.split("/")[1];
 
+  const fileName = expenseId + "_" + imageNumber + "." + extension;
+  const blob = Utilities.newBlob(bytes, contentType, fileName);
+  const file = folder.createFile(blob);
 
-const folder =
-getExpenseFolder();
+  // Megtekintési jogosultság beállítása a link birtokosainak
+  file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
 
-
-const contentType =
-imageData.match(
-/data:(.*);base64/
-)[1];
-
-
-const base64 =
-imageData.split(",")[1];
-
-
-const bytes =
-Utilities.base64Decode(
-base64
-);
-
-
-const extension =
-contentType.split("/")[1];
-
-const fileName =
-expenseId +
-"_" +
-imageNumber +
-"." +
-extension;
-
-const blob =
-Utilities.newBlob(
-bytes,
-contentType,
-fileName
-);
-
-
-const file =
-folder.createFile(
-blob
-);
-
-
-return {
-
-id:file.getId(),
-
-url:file.getUrl(),
-
-name:file.getName()
-
-};
-
-
+  return {
+    id: file.getId(),
+    url: file.getUrl(),
+    name: file.getName()
+  };
 }
