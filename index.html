@@ -2,128 +2,64 @@
 <html>
 
 <head>
+  <meta charset="utf-8">
+  <!-- Mobilra optimalizált nézet (letiltja a véletlen dupla-koppintásos nagyítást) -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  
+  <!-- Címsor és böngésző fejlécszín -->
+  <meta name="theme-color" content="#1976d2">
+  <title>ExpenseTracker</title>
 
-<?!= include('styles'); ?>
+  <!-- iOS / Apple PWA beállítások -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="ExpenseTracker">
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/5501/5501375.png">
 
+  <!-- Android / Chrome PWA Manifest (Data URI-vel beágyazva) -->
+  <link rel="manifest" href='data:application/manifest+json,{"name":"ExpenseTracker Költségkövető","short_name":"ExpenseTracker","start_url":".","display":"standalone","background_color":"#f3f4f6","theme_color":"#1976d2","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/5501/5501375.png","sizes":"512x512","type":"image/png"}]}'>
+
+  <?!= include('styles'); ?>
 </head>
-
 
 <body>
 
+  <div class="container">
+    <h1>ExpenseTracker</h1>
 
-<div class="container">
+    <div class="card">
+      <label for="date">Dátum</label>
+      <input type="date" id="date">
 
+      <label for="amount">Összeg</label>
+      <input type="number" id="amount" placeholder="Összeg Ft-ban">
 
-<h1>
-ExpenseTracker
-</h1>
+      <label for="costCenter">Költséghely</label>
+      <select id="costCenter">
+        <option value="" disabled selected>Válassz költséghelyet</option>
+      </select>
 
+      <label for="paymentMethod">Fizetési mód</label>
+      <select id="paymentMethod">
+        <option value="" disabled selected>Válassz fizetési módot</option>
+      </select>
 
-<div class="card">
+      <label for="comment">Megjegyzés</label>
+      <textarea id="comment" placeholder="Megjegyzés"></textarea>
 
+      <label>Blokk feltöltése</label>
+      <div class="upload-box">
+        <label for="receipt">📷 Blokk fotózása</label>
+        <input type="file" id="receipt" accept="image/*" capture="environment">
+        <div id="receiptPreview"></div>
+      </div>
 
-<label>
-Dátum
-</label>
+      <button id="saveButton">Mentés</button>
+    </div>
+  </div>
 
-<input 
-type="date"
-id="date">
-
-
-<label>
-Összeg
-</label>
-
-<input
-type="number"
-id="amount"
-placeholder="Összeg Ft-ban">
-
-
-<label>
-Költséghely
-</label>
-
-<select id="costCenter">
-
-<option value="" disabled selected>
-Válassz költséghelyet
-</option>
-
-</select>
-
-
-<label>
-Fizetési mód
-</label>
-
-<select id="paymentMethod">
-
-<option value="" disabled selected>
-Válassz fizetési módot
-</option>
-
-</select>
-
-
-<label>
-Megjegyzés
-</label>
-
-<textarea
-id="comment"
-placeholder="Megjegyzés">
-</textarea>
-
-
-<label>
-Blokk feltöltése
-</label>
-
-
-<div class="upload-box">
-
-
-<label for="receipt">
-
-📷 Blokk fotózása
-
-</label>
-
-
-<input 
-type="file"
-id="receipt"
-accept="image/*"
-capture="environment">
-
-
-<div id="receiptPreview">
-
-</div>
-
-
-</div>
-
-
-<button
-id="saveButton">
-
-Mentés
-
-</button>
-
-
-</div>
-
-
-</div>
-
-
-<?!= include('javascript'); ?>
-<?!= include("dialogs"); ?>
-
+  <?!= include('javascript'); ?>
+  <?!= include("dialogs"); ?>
 
 </body>
 
