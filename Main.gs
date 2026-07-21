@@ -1,6 +1,3 @@
-/**
- * WebApp belépési pont
- */
 function doGet() {
   return HtmlService
     .createTemplateFromFile("index")
@@ -8,9 +5,6 @@ function doGet() {
     .setTitle(APP.NAME);
 }
 
-/**
- * HTML include
- */
 function include(filename) {
   return HtmlService
     .createHtmlOutputFromFile(filename)
@@ -27,4 +21,8 @@ function getExpenseId(costCenter) {
 
 function saveExpense(expense, imageUrls, expenseId, gpsCoords) {
   return saveExpenseData(expense, imageUrls, expenseId, gpsCoords);
+}
+
+function getDashboardStats(period) {
+  return getDashboardStatsData(period);
 }

@@ -1,9 +1,15 @@
 <script>
 let selectedReceipts = [];
+let chartInstance = null;
+let currentPeriod = "havi";
 
 document.addEventListener("DOMContentLoaded", function() {
 
-  /* 1. Mai dátum automatikus beállítása */
+  /* 1. Kezdő adatok és Dashboard betöltése */
+  loadDashboardData("havi");
+  loadSettings();
+
+  /* 2. Dátum beállítása az űrlapon */
   try {
     const dateField = document.getElementById("date");
     if (dateField) {
@@ -13,17 +19,38 @@ document.addEventListener("DOMContentLoaded", function() {
       const day = String(today.getDate()).padStart(2, "0");
       dateField.value = year + "-" + month + "-" + day;
     }
-    
-    const amountField = document.getElementById("amount");
-    if (amountField) amountField.focus();
   } catch (e) {
-    console.error("Dátum beállítási hiba:", e);
+    console.error(e);
   }
 
-  /* 2. Beállítások betöltése Sheetsből */
-  loadSettings();
+  /* 3. Képernyőváltó gombok */
+  const addExpenseBtn = document.getElementById("addExpenseBtn");
+  if (addExpenseBtn) {
+    addExpenseBtn.addEventListener("click", function() {
+      showScreen("expenseScreen");
+    });
+  }
 
-  /* 3. Fő mentés gomb eseménykezelő */
+  const backToDashBtn = document.getElementById("backToDashBtn");
+  if (backToDashBtn) {
+    backToDashBtn.addEventListener("click", function() {
+      showScreen("dashboardScreen");
+      loadDashboardData(currentPeriod); // Frissítjük a diagramot
+    });
+  }
+
+  /* 4. Időszak szűrő gombok */
+  const filterBtns = document.querySelectorAll(".filter-btn");
+  filterBtns.forEach(function(btn) {
+    btn.addEventListener("click", function() {
+      filterBtns.forEach(b => b.classList.remove("active"));
+      this.classList.add("active");
+      currentPeriod = this.getAttribute("data-period");
+      loadDashboardData(currentPeriod);
+    });
+  });
+
+  /* 5. Mentés gomb */
   const saveBtn = document.getElementById("saveButton");
   if (saveBtn) {
     saveBtn.addEventListener("click", function() {
@@ -55,40 +82,25 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   }
 
-  /* 3/A. Vissza gomb */
-  const noReceiptBackBtn = document.getElementById("noReceiptBackButton");
-  if (noReceiptBackBtn) {
-    noReceiptBackBtn.addEventListener("click", function() {
-      document.getElementById("noReceiptDialog").classList.add("hidden");
-    });
-  }
+  /* Modal gombok */
+  document.getElementById("noReceiptBackButton")?.addEventListener("click", function() {
+    document.getElementById("noReceiptDialog").classList.add("hidden");
+  });
 
-  /* 3/B. Mentés blokk nélkül gomb */
-  const noReceiptContinueBtn = document.getElementById("noReceiptContinueButton");
-  if (noReceiptContinueBtn) {
-    noReceiptContinueBtn.addEventListener("click", function() {
-      document.getElementById("noReceiptDialog").classList.add("hidden");
-      showSummary(window.currentExpense);
-    });
-  }
+  document.getElementById("noReceiptContinueButton")?.addEventListener("click", function() {
+    document.getElementById("noReceiptDialog").classList.add("hidden");
+    showSummary(window.currentExpense);
+  });
 
-  /* 4. Megerősített mentés gomb */
-  const confirmBtn = document.getElementById("confirmButton");
-  if (confirmBtn) {
-    confirmBtn.addEventListener("click", function() {
-      startSequentialSave();
-    });
-  }
+  document.getElementById("confirmButton")?.addEventListener("click", function() {
+    startSequentialSave();
+  });
 
-  /* 5. Mégsem gomb */
-  const cancelBtn = document.getElementById("cancelButton");
-  if (cancelBtn) {
-    cancelBtn.addEventListener("click", function() {
-      document.getElementById("confirmDialog").classList.add("hidden");
-    });
-  }
+  document.getElementById("cancelButton")?.addEventListener("click", function() {
+    document.getElementById("confirmDialog").classList.add("hidden");
+  });
 
-  /* 6. Blokk fotó eseménykezelők */
+  /* Blokk fotók */
   const receiptInput = document.getElementById("receipt");
   if (receiptInput) {
     receiptInput.addEventListener("change", function(event) {
@@ -101,24 +113,77 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   }
 
-  const moreBtn = document.getElementById("moreReceiptButton");
-  if (moreBtn) {
-    moreBtn.addEventListener("click", function() {
-      document.getElementById("receiptDialog").classList.add("hidden");
-      document.getElementById("receipt").click();
-    });
-  }
+  document.getElementById("moreReceiptButton")?.addEventListener("click", function() {
+    document.getElementById("receiptDialog").classList.add("hidden");
+    document.getElementById("receipt").click();
+  });
 
-  const finishBtn = document.getElementById("finishReceiptButton");
-  if (finishBtn) {
-    finishBtn.addEventListener("click", function() {
-      document.getElementById("receiptDialog").classList.add("hidden");
-    });
-  }
+  document.getElementById("finishReceiptButton")?.addEventListener("click", function() {
+    document.getElementById("receiptDialog").classList.add("hidden");
+  });
 
 });
 
-/* Beállítások letöltése */
+/* Képernyő váltás */
+function showScreen(screenId) {
+  document.getElementById("dashboardScreen").classList.add("hidden");
+  document.getElementById("expenseScreen").classList.add("hidden");
+  document.getElementById(screenId).classList.remove("hidden");
+}
+
+/* Dashboard adatok betöltése és Chart.js rajzolás */
+function loadDashboardData(period) {
+  google.script.run
+    .withSuccessHandler(function(data) {
+      if (!data) return;
+
+      document.getElementById("totalAmountText").textContent = data.totalAmount.toLocaleString("hu-HU") + " Ft";
+
+      renderChart(data.labels, data.values);
+    })
+    .withFailureHandler(function(err) {
+      console.error("Dashboard betöltési hiba:", err);
+    })
+    .getDashboardStats(period);
+}
+
+/* Oszlopdiagram rajzolása (Chart.js) */
+function renderChart(labels, values) {
+  const ctx = document.getElementById("expenseChart").getContext("2d");
+
+  if (chartInstance) {
+    chartInstance.destroy(); // Előző diagram törlése az újrarajzolás előtt
+  }
+
+  chartInstance = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: labels,
+      datasets: [{
+        label: "Költés (Ft)",
+        data: values,
+        backgroundColor: "#1976d2",
+        borderRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: function(value) { return value.toLocaleString("hu-HU") + " Ft"; }
+          }
+        }
+      }
+    }
+  });
+}
+
 function loadSettings() {
   google.script.run
     .withSuccessHandler(function(data) {
@@ -126,6 +191,7 @@ function loadSettings() {
       
       const costCenterSelect = document.getElementById("costCenter");
       if (costCenterSelect && data.costCenters) {
+        costCenterSelect.innerHTML = '<option value="" disabled selected>Válassz költséghelyet</option>';
         data.costCenters.forEach(function(item) {
           const option = document.createElement("option");
           option.value = item;
@@ -136,6 +202,7 @@ function loadSettings() {
 
       const paymentSelect = document.getElementById("paymentMethod");
       if (paymentSelect && data.paymentMethods) {
+        paymentSelect.innerHTML = '<option value="" disabled selected>Válassz fizetési módot</option>';
         data.paymentMethods.forEach(function(item) {
           const option = document.createElement("option");
           option.value = item;
@@ -144,13 +211,9 @@ function loadSettings() {
         });
       }
     })
-    .withFailureHandler(function(err) {
-      console.error("Hiba a beállítások betöltésekor:", err);
-    })
     .getSettings();
 }
 
-/* Szekvenciális mentési folyamat (GPS-szel) */
 function startSequentialSave() {
   const expense = window.currentExpense;
   const confirmBtn = document.getElementById("confirmButton");
@@ -162,7 +225,6 @@ function startSequentialSave() {
   statusBox.classList.remove("hidden");
   statusBox.innerHTML = "⏳ GPS és ID lekérése...";
 
-  // GPS pozíció és ID lekérése
   Promise.all([
     getGPSLocation(),
     runGoogleScript("getExpenseId", expense.costCenter)
@@ -178,7 +240,6 @@ function startSequentialSave() {
   });
 }
 
-// Rekurzív képfeltöltő lánc
 function uploadImagesSequentially(expense, expenseId, gpsCoords, index, imageUrls) {
   const statusBox = document.getElementById("statusProgress");
   const confirmBtn = document.getElementById("confirmButton");
@@ -204,7 +265,6 @@ function uploadImagesSequentially(expense, expenseId, gpsCoords, index, imageUrl
       });
 
   } else {
-    // Adatok mentése Sheet-be (GPS adatokkal és E-maillel)
     statusBox.innerHTML = "⏳ Adatok rögzítése a táblázatban...";
     
     google.script.run
@@ -216,6 +276,10 @@ function uploadImagesSequentially(expense, expenseId, gpsCoords, index, imageUrl
           confirmBtn.disabled = false;
           cancelBtn.disabled = false;
           resetForm();
+          
+          // MENTÉS UTÁN AUTOMATIKUSAN VISSZALÉP A DASHBOARDRA ÉS FRISSÍT
+          showScreen("dashboardScreen");
+          loadDashboardData(currentPeriod);
         }, 1500);
       })
       .withFailureHandler(function(err) {
@@ -225,39 +289,21 @@ function uploadImagesSequentially(expense, expenseId, gpsCoords, index, imageUrl
   }
 }
 
-/* Segédfüggvény: GPS Koordináták lekérése (Megbízhatóbb beállításokkal) */
 function getGPSLocation() {
   return new Promise(function(resolve) {
-    if (!navigator.geolocation) {
-      console.warn("GPS nem támogatott ebben a böngészőben.");
-      resolve(null);
-      return;
-    }
-
+    if (!navigator.geolocation) { resolve(null); return; }
     navigator.geolocation.getCurrentPosition(
       function(position) {
-        console.log("GPS siker:", position.coords.latitude, position.coords.longitude);
-        resolve({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude
-        });
+        resolve({ lat: position.coords.latitude, lng: position.coords.longitude });
       },
-      function(error) {
-        console.warn("GPS hiba vagy időtúllépés:", error.message);
-        resolve(null); // Nem blokkoljuk a mentést GPS hiányában
-      },
-      { 
-        timeout: 10000,           // 10 másodpercig vár a válaszra
-        enableHighAccuracy: false,// Hálózati/Wi-Fi alapú gyors helymeghatározás
-        maximumAge: 60000         // 1 percen belüli előző pozíció is elfogadható
-      }
+      function() { resolve(null); },
+      { timeout: 10000, enableHighAccuracy: false, maximumAge: 60000 }
     );
   });
 }
 
 function handleSaveError(msg, confirmBtn, cancelBtn, statusBox) {
   alert("⚠ " + msg);
-  console.error(msg);
   statusBox.classList.add("hidden");
   confirmBtn.disabled = false;
   cancelBtn.disabled = false;
@@ -315,6 +361,5 @@ function resetForm() {
   document.getElementById("receipt").value = "";
   selectedReceipts = [];
   document.getElementById("receiptPreview").innerHTML = "";
-  document.getElementById("amount").focus();
 }
 </script>

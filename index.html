@@ -3,21 +3,18 @@
 
 <head>
   <meta charset="utf-8">
-  <!-- Mobilra optimalizált nézet (letiltja a véletlen dupla-koppintásos nagyítást) -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  
-  <!-- Címsor és böngésző fejlécszín -->
   <meta name="theme-color" content="#1976d2">
   <title>ExpenseTracker</title>
 
-  <!-- iOS / Apple PWA beállítások -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="ExpenseTracker">
   <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/5501/5501375.png">
-
-  <!-- Android / Chrome PWA Manifest (Data URI-vel beágyazva) -->
   <link rel="manifest" href='data:application/manifest+json,{"name":"ExpenseTracker Költségkövető","short_name":"ExpenseTracker","start_url":".","display":"standalone","background_color":"#f3f4f6","theme_color":"#1976d2","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/5501/5501375.png","sizes":"512x512","type":"image/png"}]}'>
+
+  <!-- Chart.js grafikon rajzoló könyvtár -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <?!= include('styles'); ?>
 </head>
@@ -25,37 +22,81 @@
 <body>
 
   <div class="container">
-    <h1>ExpenseTracker</h1>
+    
+    <!-- 1. KÉPERNYŐ: DASHBOARD -->
+    <div id="dashboardScreen">
+      <h1>ExpenseTracker</h1>
 
-    <div class="card">
-      <label for="date">Dátum</label>
-      <input type="date" id="date">
+      <div class="card">
+        <!-- Időszak szűrő gombok -->
+        <div class="filter-group">
+          <button class="filter-btn active" data-period="havi">Havi</button>
+          <button class="filter-btn" data-period="6havi">6 havi</button>
+          <button class="filter-btn" data-period="eves">Éves</button>
+        </div>
 
-      <label for="amount">Összeg</label>
-      <input type="number" id="amount" placeholder="Összeg Ft-ban">
+        <div class="total-display">
+          <span>Összes költés:</span>
+          <strong id="totalAmountText">0 Ft</strong>
+        </div>
 
-      <label for="costCenter">Költséghely</label>
-      <select id="costCenter">
-        <option value="" disabled selected>Válassz költséghelyet</option>
-      </select>
-
-      <label for="paymentMethod">Fizetési mód</label>
-      <select id="paymentMethod">
-        <option value="" disabled selected>Válassz fizetési módot</option>
-      </select>
-
-      <label for="comment">Megjegyzés</label>
-      <textarea id="comment" placeholder="Megjegyzés"></textarea>
-
-      <label>Blokk feltöltése</label>
-      <div class="upload-box">
-        <label for="receipt">📷 Blokk fotózása</label>
-        <input type="file" id="receipt" accept="image/*" capture="environment">
-        <div id="receiptPreview"></div>
+        <!-- Grafikon doboz -->
+        <div class="chart-container">
+          <canvas id="expenseChart"></canvas>
+        </div>
       </div>
 
-      <button id="saveButton">Mentés</button>
+      <!-- KÉT NAGY FŐ GOMB EGYMÁS MELLETT -->
+      <div class="action-buttons-grid">
+        <button id="addIncomeBtn" class="action-btn btn-income" disabled>
+          <span>🔒</span>
+          <span>Bevétel könyvelése</span>
+        </button>
+        
+        <button id="addExpenseBtn" class="action-btn btn-expense">
+          <span>➕</span>
+          <span>Kiadás könyvelése</span>
+        </button>
+      </div>
     </div>
+
+    <!-- 2. KÉPERNYŐ: KIADÁS RÖGZÍTŐ ŰRLAP -->
+    <div id="expenseScreen" class="hidden">
+      <button id="backToDashBtn" class="btn-back">⬅ Vissza a Dashboardra</button>
+
+      <div class="card">
+        <h2>Kiadás rögzítése</h2>
+
+        <label for="date">Dátum</label>
+        <input type="date" id="date">
+
+        <label for="amount">Összeg</label>
+        <input type="number" id="amount" placeholder="Összeg Ft-ban">
+
+        <label for="costCenter">Költséghely</label>
+        <select id="costCenter">
+          <option value="" disabled selected>Válassz költséghelyet</option>
+        </select>
+
+        <label for="paymentMethod">Fizetési mód</label>
+        <select id="paymentMethod">
+          <option value="" disabled selected>Válassz fizetési módot</option>
+        </select>
+
+        <label for="comment">Megjegyzés</label>
+        <textarea id="comment" placeholder="Megjegyzés"></textarea>
+
+        <label>Blokk feltöltése</label>
+        <div class="upload-box">
+          <label for="receipt">📷 Blokk fotózása</label>
+          <input type="file" id="receipt" accept="image/*" capture="environment">
+          <div id="receiptPreview"></div>
+        </div>
+
+        <button id="saveButton">Mentés</button>
+      </div>
+    </div>
+
   </div>
 
   <?!= include('javascript'); ?>
