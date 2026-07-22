@@ -77,3 +77,85 @@ function saveExpenseData(expense, imageUrls = [], customId = null, gpsCoords = n
     throw error;
   }
 }
+ /**
+ * Bevétel kötegelt mentési szolgáltatás (frissített oszlopsorrenddel)
+ */
+function saveIncomeData(incomeData) {
+  try {
+    const ss = SpreadsheetApp.openById(CONFIG.SHEET_ID);
+    let sheet = ss.getSheetByName(APP.SHEETS.INCOME || "Bevételek");
+
+    // Ha még nem létezik a fül, automatikusan létrehozzuk az új oszlopsorrenddel
+    if (!sheet) {
+      sheet = ss.insertSheet(APP.SHEETS.INCOME || "Bevételek");
+      sheet.appendRow([
+        "Dátum",                            // A oszlop
+        "Befizetés célja",                  // B oszlop
+        "Összeg (forintban)",               // C oszlop (ÁTTENVE IDE)
+        "Befizetés módja",                  // D oszlop (ÁTTENVE IDE)
+        "Befizető neve",                    // E oszlop (ÁTTENVE IDE)
+        "Megjegyzés",                       // F oszlop
+        "Fizetés egyedi azonosítója",       // G oszlop
+        "Email címe a rögzítő személynek"  // H oszlop
+      ]);
+    }
+
+    const userEmail = Session.getActiveUser().getEmail() || "Ismeretlen";
+    const dateStr = incomeData.date;
+    const purpose = incomeData.purpose;
+    const paymentMethod = incomeData.paymentMethod;
+    const amount = Number(incomeData.amount);
+    const comment = incomeData.comment || "";
+    const payers = incomeData.payers;
+
+    if (!payers || !Array.isArray(payers) || payers.length === 0) {
+      throw new Error("Legalább egy befizetőt meg kell adni!");
+    }
+
+    const now = new Date();
+    const timeStamp = Utilities.formatDate(now, APP.TIMEZONE || "Europe/Budapest", "yyyyMMdd");
+    const lastRow = sheet.getLastRow();
+
+    const rowsToAppend = [];
+    const ids = [];
+
+    payers.forEach((payer, idx) => {
+      const seq = String(lastRow + idx).padStart(3, "0");
+      const id = "INC-" + timeStamp + "-" + seq;
+      ids.push(id);
+
+      // Új oszlopsorrend összerakása:
+      rowsToAppend.push([
+        dateStr,         // A: Dátum
+        purpose,         // B: Befizetés célja
+        amount,          // C: Összeg (forintban)
+        paymentMethod,   // D: Befizetés módja
+        payer,           // E: Befizető neve
+        comment,         // F: Megjegyzés
+        id,              // G: Fizetés egyedi azonosítója
+        userEmail        // H: Email címe a rögzítő személynek
+      ]);
+    });
+
+    if (rowsToAppend.length > 0) {
+      const startRow = sheet.getLastRow() + 1;
+      sheet.getRange(startRow, 1, rowsToAppend.length, 8).setValues(rowsToAppend);
+    }
+
+    if (typeof writeLog === "function") {
+      writeLog("INFO", "Income", "Bevétel mentés sikeres (" + payers.length + " fő): " + ids.join(", "));
+    }
+
+    return {
+      success: true,
+      count: payers.length,
+      message: "Sikeresen rögzítve " + payers.length + " fő része!"
+    };
+
+  } catch (error) {
+    if (typeof writeLog === "function") {
+      writeLog("ERROR", "Income", error.message);
+    }
+    throw error;
+  }
+}

@@ -23,6 +23,14 @@ function saveExpense(expense, imageUrls, expenseId, gpsCoords) {
   return saveExpenseData(expense, imageUrls, expenseId, gpsCoords);
 }
 
+function saveIncome(incomeData) {
+  return saveIncomeData(incomeData);
+}
+
+function saveTransfer(transferData) {
+  return saveTransferData(transferData);
+}
+
 function getDashboardStats(period) {
   return getDashboardStatsData(period);
 }

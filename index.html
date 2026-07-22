@@ -7,12 +7,6 @@
   <meta name="theme-color" content="#1976d2">
   <title>ExpenseTracker</title>
 
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="ExpenseTracker">
-  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/5501/5501375.png">
-  <link rel="manifest" href='data:application/manifest+json,{"name":"ExpenseTracker Költségkövető","short_name":"ExpenseTracker","start_url":".","display":"standalone","background_color":"#f3f4f6","theme_color":"#1976d2","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/5501/5501375.png","sizes":"512x512","type":"image/png"}]}'>
-
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <?!= include('styles'); ?>
@@ -25,7 +19,6 @@
     <!-- 1. KÉPERNYŐ: DASHBOARD -->
     <div id="dashboardScreen">
       
-      <!-- DÍSZES FEJLÉC HÁTTÉRKÉPPEL -->
       <div class="app-header">
         <h1>ExpenseTracker</h1>
       </div>
@@ -47,10 +40,10 @@
         </div>
       </div>
 
-      <!-- KÉT NAGY FŐ GOMB EGYMÁS MELLETT -->
+      <!-- FŐ AKCIÓ GOMBOK -->
       <div class="action-buttons-grid">
-        <button id="addIncomeBtn" class="action-btn btn-income" disabled>
-          <span>🔒</span>
+        <button id="addIncomeBtn" class="action-btn btn-income">
+          <span>💰</span>
           <span>Bevétel könyvelése</span>
         </button>
         
@@ -60,34 +53,39 @@
         </button>
       </div>
 
-      <!-- LÁBLÉC LOGÓKKAL ÉS FELIRATTAL -->
+      <!-- HARMADIK GOMB: PÉNZMOZGÁS -->
+      <div class="full-width-action">
+        <button id="addTransferBtn" class="action-btn btn-transfer">
+          <span>🔄</span>
+          <span>Készpénz mozgatása (Bank ↔ KP)</span>
+        </button>
+      </div>
+
       <div class="app-footer">
-        <img src="https://cdn-icons-png.flaticon.com/512/5501/5501375.png" alt="Logo Bal" class="footer-logo">
         <span class="footer-text">Fejlesztés alatt</span>
-        <img src="https://cdn-icons-png.flaticon.com/512/5501/5501375.png" alt="Logo Jobb" class="footer-logo">
       </div>
 
     </div>
 
-    <!-- 2. KÉPERNYŐ: KIADÁS RÖGZÍTŐ ŰRLAP -->
+    <!-- 2. KÉPERNYŐ: KIADÁS RÖGZÍTŐ -->
     <div id="expenseScreen" class="hidden">
       <button id="backToDashBtn" class="btn-back">⬅ Vissza a Dashboardra</button>
 
       <div class="card">
         <h2>Kiadás rögzítése</h2>
 
-        <label for="date">Dátum</label>
+        <label for="date">Dátum *</label>
         <input type="date" id="date">
 
-        <label for="amount">Összeg</label>
+        <label for="amount">Összeg *</label>
         <input type="number" id="amount" placeholder="Összeg Ft-ban">
 
-        <label for="costCenter">Költséghely</label>
+        <label for="costCenter">Költséghely *</label>
         <select id="costCenter">
           <option value="" disabled selected>Válassz költséghelyet</option>
         </select>
 
-        <label for="paymentMethod">Fizetési mód</label>
+        <label for="paymentMethod">Fizetési mód *</label>
         <select id="paymentMethod">
           <option value="" disabled selected>Válassz fizetési módot</option>
         </select>
@@ -103,6 +101,87 @@
         </div>
 
         <button id="saveButton">Mentés</button>
+      </div>
+    </div>
+
+    <!-- 3. KÉPERNYŐ: BEVÉTEL RÖGZÍTŐ -->
+    <div id="incomeScreen" class="hidden">
+      <button id="backToDashFromIncomeBtn" class="btn-back">⬅ Vissza a Dashboardra</button>
+
+      <div class="card">
+        <h2 style="color: #2e7d32;">Bevétel rögzítése</h2>
+
+        <label for="incomeDate">Dátum *</label>
+        <input type="date" id="incomeDate">
+
+        <label for="incomeAmount">Összeg (Ft / fő) *</label>
+        <input type="number" id="incomeAmount" placeholder="Összeg Ft-ban">
+
+        <!-- 1. Befizetés célja (F oszlop) -->
+        <label for="incomePurpose">Befizetés célja *</label>
+        <select id="incomePurpose">
+          <option value="" disabled selected>Válassz célt</option>
+        </select>
+
+        <!-- 2. Befizetés módja (C oszlop) -->
+        <label for="incomePaymentMethod">Befizetés módja *</label>
+        <select id="incomePaymentMethod">
+          <option value="" disabled selected>Válassz módot (Pl. Készpénz / Utalás)</option>
+        </select>
+
+        <!-- 3. Befizető(k) neve (E oszlop + Egyéb) -->
+        <label>Befizető(k) neve *</label>
+        
+        <div id="payerSelectTrigger" class="custom-select-trigger">
+          <span id="payerSelectText">Válassz befizető(k)et...</span>
+          <span>▼</span>
+        </div>
+
+        <div id="payersDropdownPanel" class="dropdown-panel hidden">
+          <div id="payersCheckboxList">
+            <p style="color: #888; font-size: 14px; text-align: center;">Nevek betöltése...</p>
+          </div>
+
+          <div class="checkbox-item other-item">
+            <input type="checkbox" id="cb_other_payer">
+            <label for="cb_other_payer">✍ Egyéb (manuális név)</label>
+          </div>
+          
+          <div id="customPayerContainer" class="hidden" style="margin-top: 8px;">
+            <input type="text" id="customPayerInput" placeholder="Írd be a befizető nevét">
+          </div>
+        </div>
+
+        <label for="incomeComment" style="margin-top: 12px;">Megjegyzés</label>
+        <textarea id="incomeComment" placeholder="Megjegyzés"></textarea>
+
+        <button id="saveIncomeBtn" style="background: #2e7d32; margin-top: 16px;">Mentés</button>
+      </div>
+    </div>
+
+    <!-- 4. KÉPERNYŐ: PÉNZMOZGÁS RÖGZÍTŐ (ÚJ) -->
+    <div id="transferScreen" class="hidden">
+      <button id="backToDashFromTransferBtn" class="btn-back">⬅ Vissza a Dashboardra</button>
+
+      <div class="card">
+        <h2 style="color: #0288d1;">Készpénz mozgatása</h2>
+
+        <label for="transferDate">Dátum *</label>
+        <input type="date" id="transferDate">
+
+        <label for="transferType">Tranzakció típusa *</label>
+        <select id="transferType">
+          <option value="Készpénz befizetése számlára" selected>Készpénz befizetése számlára</option>
+          <option value="Készpénz felvétele">Készpénz felvétele</option>
+        </select>
+
+        <label for="transferAmount">Összeg (Ft) *</label>
+        <input type="number" id="transferAmount" placeholder="Összeg Ft-ban">
+
+        <label for="transferComment">Megjegyzés</label>
+        <textarea id="transferComment" placeholder="Megjegyzés (pl. ki intézte)"></textarea>
+
+        <button id="saveTransferBtn" style="background: #0288d1; margin-top: 16px;">Mentés</button>
       </div>
     </div>
 
