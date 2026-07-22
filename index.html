@@ -1,190 +1,221 @@
 <!DOCTYPE html>
-<html lang="hu">
+<html>
+
 <head>
-  <base target="_top">
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#1976d2">
+  <title>ExpenseTracker</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <?!= include('styles'); ?>
 </head>
+
 <body>
+
   <div class="container">
     
-    <!-- FEJLÉC -->
-    <header class="paykal-header">
-      <h1>PayKal</h1>
-    </header>
-
-    <!-- DASHBOARD KÉPERNYŐ -->
-    <main id="dashboardView" class="screen">
-      <div class="card balance-card">
-        <span class="balance-label">Összesített Egyenleg</span>
-        <div id="totalBalance" class="total-balance-amount">0 Ft</div>
+    <!-- 1. KÉPERNYŐ: DASHBOARD -->
+    <div id="dashboardView">
+      
+      <header class="paykal-header">
+        <h1>PayKal</h1>
+        <div class="subtitle">Wallet of Calasanz</div>
         
-        <div class="balance-grid">
-          <div class="balance-box">
-            <span class="sub-label">Készpénz</span>
-            <span id="cashBalance" class="sub-amount">0 Ft</span>
-          </div>
-          <div class="balance-box">
-            <span class="sub-label">Bankszámla</span>
-            <span id="bankBalance" class="sub-amount">0 Ft</span>
-          </div>
-        </div>
-      </div>
+      </header>
 
-      <div class="action-buttons-grid">
-        <button type="button" class="action-btn btn-income" onclick="showScreen('incomeScreen')">+ Új Bevétel</button>
-        <button type="button" class="action-btn btn-expense" onclick="showScreen('expenseScreen')">- Új Kiadás</button>
-      </div>
-      <button type="button" class="action-btn btn-transfer" onclick="showScreen('transferScreen')">⇄ Átvezetés</button>
-    </main>
+      <main class="dashboard-content">
+        
+        <div class="card balance-card">
+          <span class="balance-label">Csoport vagyona</span>
+          <h2 id="totalBalanceDisplay" class="total-balance-amount">0 Ft</h2>
 
-    <!-- KIADÁS RÖGZÍTÉSE KÉPERNYŐ -->
-    <section id="expenseScreen" class="screen hidden">
-      <button type="button" id="backToDashBtn" class="btn-back">← Vissza</button>
-      <div class="card">
-        <h2>Új Kiadás Rögzítése</h2>
-        <form id="expenseForm" onsubmit="return false;">
-          
-          <div class="form-group">
-            <label for="date">Dátum *</label>
-            <input type="date" id="date" required>
-          </div>
-
-          <div class="form-group">
-            <label for="costCenter">Költséghely *</label>
-            <select id="costCenter" required>
-              <option value="" disabled selected>Betöltés...</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="paymentMethod">Fizetési mód *</label>
-            <select id="paymentMethod" required>
-              <option value="" disabled selected>Betöltés...</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="amount">Összeg (Ft) *</label>
-            <input type="number" id="amount" placeholder="0" min="1" required>
-          </div>
-
-          <div class="form-group">
-            <label for="description">Megjegyzés / Leírás</label>
-            <textarea id="description" rows="3" placeholder="Részletek..."></textarea>
-          </div>
-
-          <button type="submit" class="action-btn btn-expense" style="width:100%; margin-top:16px;">Kiadás Mentése</button>
-        </form>
-      </div>
-    </section>
-
-    <!-- BEVÉTEL RÖGZÍTÉSE KÉPERNYŐ -->
-    <section id="incomeScreen" class="screen hidden">
-      <button type="button" id="backToDashFromIncomeBtn" class="btn-back">← Vissza</button>
-      <div class="card">
-        <h2>Új Bevétel Rögzítése</h2>
-        <form id="incomeForm" onsubmit="return false;">
-          
-          <div class="form-group">
-            <label for="incomeDate">Dátum *</label>
-            <input type="date" id="incomeDate" required>
-          </div>
-
-          <div class="form-group">
-            <label for="incomePurpose">Befizetés célja *</label>
-            <select id="incomePurpose" required>
-              <option value="" disabled selected>Betöltés...</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="incomePaymentMethod">Befizetés módja *</label>
-            <select id="incomePaymentMethod" required>
-              <option value="" disabled selected>Betöltés...</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label>Befizető(k) kiválasztása *</label>
-            <div class="custom-select-wrapper">
-              <div id="payerSelectTrigger" class="custom-select-trigger">
-                <span id="payerSelectText">Válassz befizető(k)et...</span>
-                <span>▼</span>
-              </div>
-              <div id="payersDropdownPanel" class="dropdown-panel hidden">
-                <div id="payersCheckboxList">
-                  <!-- JS tölti fel a táblázat alapján -->
-                </div>
-                <div class="checkbox-item border-top">
-                  <label for="cb_other_payer" style="margin:0; font-weight:normal; cursor:pointer;">
-                    <input type="checkbox" id="cb_other_payer"> Egyéb / Új személy
-                  </label>
-                </div>
-              </div>
+          <div class="balance-slider-container">
+            <div class="balance-bar-wrapper">
+              <div id="cashBar" class="balance-bar cash-bar" style="width: 50%;"></div>
+              <div id="bankBar" class="balance-bar bank-bar" style="width: 50%;"></div>
             </div>
           </div>
 
-          <div id="customPayerContainer" class="form-group hidden">
-            <label for="customPayerName">Egyéb befizető neve</label>
-            <input type="text" id="customPayerName" placeholder="Név megadása...">
+          <div class="balance-grid">
+            <div class="balance-box cash-box">
+              <span class="sub-label"><span class="dot cash-dot"></span> Készpénz</span>
+              <strong id="cashBalanceDisplay" class="sub-amount">0 Ft</strong>
+            </div>
+            <div class="balance-box bank-box">
+              <span class="sub-label"><span class="dot bank-dot"></span> Számla</span>
+              <strong id="bankBalanceDisplay" class="sub-amount">0 Ft</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="card chart-card">
+          <div class="time-filter-group">
+            <button type="button" class="time-btn active" onclick="changeTimeFilter('1H')">1 H</button>
+            <button type="button" class="time-btn" onclick="changeTimeFilter('3H')">3 H</button>
+            <button type="button" class="time-btn" onclick="changeTimeFilter('6H')">6 H</button>
+            <button type="button" class="time-btn" onclick="changeTimeFilter('1E')">1 É</button>
+            <button type="button" class="time-btn" onclick="changeTimeFilter('2E')">2 É</button>
+            <button type="button" class="time-btn" onclick="changeTimeFilter('O')">Ö</button>
           </div>
 
-          <div class="form-group">
-            <label for="incomeAmount">Összeg (Ft) *</label>
-            <input type="number" id="incomeAmount" placeholder="0" min="1" required>
+          <div class="chart-container">
+            <canvas id="expenseChart"></canvas>
           </div>
+        </div>
 
-          <div class="form-group">
-            <label for="incomeDescription">Megjegyzés</label>
-            <textarea id="incomeDescription" rows="3" placeholder="Részletek..."></textarea>
-          </div>
+        <div class="action-buttons-grid">
+          <button type="button" id="addIncomeBtn" class="action-btn btn-income" onclick="showScreen('incomeScreen')">
+            <span class="btn-icon">💰</span>
+            <span>Bevétel hozzáadása</span>
+          </button>
 
-          <button type="submit" class="action-btn btn-income" style="width:100%; margin-top:16px;">Bevétel Mentése</button>
-        </form>
-      </div>
-    </section>
+          <button type="button" id="addExpenseBtn" class="action-btn btn-expense" onclick="showScreen('expenseScreen')">
+            <span class="btn-icon">➖</span>
+            <span>Kiadás hozzáadása</span>
+          </button>
+        </div>
 
-    <!-- ÁTVEZETÉS KÉPERNYŐ -->
-    <section id="transferScreen" class="screen hidden">
-      <button type="button" id="backToDashFromTransferBtn" class="btn-back">← Vissza</button>
+        <button type="button" id="addTransferBtn" class="action-btn btn-transfer" onclick="showScreen('transferScreen')">
+          <span class="btn-icon">🔄</span>
+          <span>Készpénz mozgás rögzítése</span>
+        </button>
+
+      </main>
+
+      <footer class="paykal-footer">
+        <div class="footer-logo">
+          <img src="https://drive.google.com/thumbnail?id=1g5YTlcWbdOP-0b6kvwoCt8CrOCkyKK57" alt="Piarista Rend Magyar Tartománya" />
+        </div>
+        <div class="footer-logo">
+          <img src="https://drive.google.com/thumbnail?id=1qQJD5SY7IO_6m2CfLmT1z8QNEe_3ZFo6" alt="Kalazancius Mozgalom" />
+        </div>
+      </footer>
+
+    </div>
+
+    <!-- 2. KÉPERNYŐ: KIADÁS RÖGZÍTŐ -->
+    <div id="expenseScreen" class="hidden">
+      <button id="backToDashBtn" class="btn-back">⬅ Vissza a Dashboardra</button>
+
       <div class="card">
-        <h2>Átvezetés Számlák Között</h2>
-        <form id="transferForm" onsubmit="return false;">
-          
-          <div class="form-group">
-            <label for="transferDate">Dátum *</label>
-            <input type="date" id="transferDate" required>
-          </div>
+        <h2>Kiadás rögzítése</h2>
 
-          <div class="form-group">
-            <label for="transferFrom">Honnan *</label>
-            <select id="transferFrom" required>
-              <option value="Készpénz">Készpénz</option>
-              <option value="Bankszámla">Bankszámla</option>
-            </select>
-          </div>
+        <label for="date">Dátum *</label>
+        <input type="date" id="date">
 
-          <div class="form-group">
-            <label for="transferTo">Hova *</label>
-            <select id="transferTo" required>
-              <option value="Bankszámla">Bankszámla</option>
-              <option value="Készpénz">Készpénz</option>
-            </select>
-          </div>
+        <label for="amount">Összeg *</label>
+        <input type="number" id="amount" placeholder="Összeg Ft-ban">
 
-          <div class="form-group">
-            <label for="transferAmount">Összeg (Ft) *</label>
-            <input type="number" id="transferAmount" placeholder="0" min="1" required>
-          </div>
+        <label for="costCenter">Költséghely *</label>
+        <select id="costCenter">
+          <option value="" disabled selected>Válassz költséghelyet</option>
+        </select>
 
-          <button type="submit" class="action-btn btn-transfer" style="width:100%; margin-top:16px;">Átvezetés Indítása</button>
-        </form>
+        <label for="paymentMethod">Fizetési mód *</label>
+        <select id="paymentMethod">
+          <option value="" disabled selected>Válassz fizetési módot</option>
+        </select>
+
+        <label for="comment">Megjegyzés</label>
+        <textarea id="comment" placeholder="Megjegyzés"></textarea>
+
+        <label>Blokk feltöltése</label>
+        <div class="upload-box">
+          <label for="receipt">📷 Blokk fotózása</label>
+          <input type="file" id="receipt" accept="image/*" capture="environment">
+          <div id="receiptPreview"></div>
+        </div>
+
+        <button id="saveButton">Mentés</button>
       </div>
-    </section>
+    </div>
+
+    <!-- 3. KÉPERNYŐ: BEVÉTEL RÖGZÍTŐ -->
+    <div id="incomeScreen" class="hidden">
+      <button id="backToDashFromIncomeBtn" class="btn-back">⬅ Vissza a Dashboardra</button>
+
+      <div class="card">
+        <h2 style="color: #2e7d32;">Bevétel rögzítése</h2>
+
+        <label for="incomeDate">Dátum *</label>
+        <input type="date" id="incomeDate">
+
+        <label for="incomeAmount">Összeg (Ft / fő) *</label>
+        <input type="number" id="incomeAmount" placeholder="Összeg Ft-ban">
+
+        <label for="incomePurpose">Befizetés célja *</label>
+        <select id="incomePurpose">
+          <option value="" disabled selected>Válassz célt</option>
+        </select>
+
+        <label for="incomePaymentMethod">Befizetés módja *</label>
+        <select id="incomePaymentMethod">
+          <option value="" disabled selected>Válassz módot (Pl. Készpénz / Utalás)</option>
+        </select>
+
+        <label>Befizető(k) neve *</label>
+        <div class="custom-select-wrapper">
+          <div id="payerSelectTrigger" class="custom-select-trigger">
+            <span id="payerSelectText">Válassz befizető(k)et...</span>
+            <span>▼</span>
+          </div>
+
+          <div id="payersDropdownPanel" class="dropdown-panel hidden">
+            <div id="payersCheckboxList">
+              <p style="color: #888; font-size: 14px; text-align: center;">Nevek betöltése...</p>
+            </div>
+
+            <div class="checkbox-item other-item">
+              <input type="checkbox" id="cb_other_payer">
+              <label for="cb_other_payer">✍ Egyéb (manuális név)</label>
+            </div>
+            
+            <div id="customPayerContainer" class="hidden" style="margin-top: 8px;">
+              <input type="text" id="customPayerInput" placeholder="Írd be a befizető nevét">
+            </div>
+          </div>
+        </div>
+
+        <label for="incomeComment" style="margin-top: 12px;">Megjegyzés</label>
+        <textarea id="incomeComment" placeholder="Megjegyzés"></textarea>
+
+        <button id="saveIncomeBtn" style="background: #2e7d32; margin-top: 16px;">Mentés</button>
+      </div>
+    </div>
+
+    <!-- 4. KÉPERNYŐ: PÉNZMOZGÁS RÖGZÍTŐ -->
+    <div id="transferScreen" class="hidden">
+      <button id="backToDashFromTransferBtn" class="btn-back">⬅ Vissza a Dashboardra</button>
+
+      <div class="card">
+        <h2 style="color: #0288d1;">Készpénz mozgatása</h2>
+
+        <label for="transferDate">Dátum *</label>
+        <input type="date" id="transferDate">
+
+        <label for="transferType">Tranzakció típusa *</label>
+        <select id="transferType">
+          <option value="Készpénz befizetése számlára" selected>Készpénz befizetése számlára</option>
+          <option value="Készpénz felvétele">Készpénz felvétele</option>
+        </select>
+
+        <label for="transferAmount">Összeg (Ft) *</label>
+        <input type="number" id="transferAmount" placeholder="Összeg Ft-ban">
+
+        <label for="transferComment">Megjegyzés</label>
+        <textarea id="transferComment" placeholder="Megjegyzés (pl. ki intézte)"></textarea>
+
+        <button id="saveTransferBtn" style="background: #0288d1; margin-top: 16px;">Mentés</button>
+      </div>
+    </div>
 
   </div>
 
   <?!= include('javascript'); ?>
+  <?!= include("dialogs"); ?>
+
 </body>
+
 </html>
