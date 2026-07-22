@@ -62,7 +62,7 @@
   }
 
   .card h2 {
-    font-size: 30px;
+    font-size: 36px;
     font-weight: 700;
     margin-bottom: 21px;
     color: var(--text-main);
@@ -148,16 +148,16 @@
     margin-bottom: 21px;
     margin-top: 0;
     padding: 16px 23px;
-    font-size: 24px;
+    font-size: 50px;
     border-radius: var(--radius-md);
   }
 
  label {
   display: block;
-  margin-top: 24px;
+  margin-top: 32px;
   margin-bottom: 8px;
   font-weight: 700;
-  font-size: 24px; /* <--- CÍMKÉK BETŰMÉRETE (18px volt) */
+  font-size: 38px; /* <--- CÍMKÉK BETŰMÉRETE (18px volt) */
   color: #334155;
 }
 
@@ -167,7 +167,7 @@ select,
   width: 100%;
   height: 44px;                  /* Finom, kompakt magasság (nem batár) */
   padding: 0 12px;               /* Belső margó a szöveg körül */
-  font-size: 15px;               /* Visszafogott, normál betűméret */
+  font-size: 28px !important;               /* Visszafogott, normál betűméret */
   font-weight: 400;              /* Letisztult, nem túl vastag betű */
   color: #1e293b;                /* Jól olvasható sötétszürke */
   background-color: #ffffff;
@@ -192,7 +192,7 @@ textarea {
   width: 100%;
   min-height: 80px;
   padding: 10px 12px;
-  font-size: 15px;
+  font-size: 36px;
   font-weight: 400;
   color: #1e293b;
   border: 1px solid #cbd5e1;
@@ -216,7 +216,7 @@ textarea {
     color: var(--primary);
     cursor: pointer;
     margin: 0;
-    font-size: 20px;
+    font-size: 26px;
     font-weight: 700;
   }
 
@@ -224,12 +224,12 @@ textarea {
 
   button {
     width: 100%;
-    padding: 21px;
+    padding: 22px;
     background: var(--primary);
     color: white;
     border: none;
     border-radius: var(--radius-md);
-    font-size: 20px;
+    font-size: 50px;
     font-weight: 700;
     margin-top: 26px;
     cursor: pointer;
@@ -246,7 +246,7 @@ textarea {
     border: 1px solid #cbd5e1;
     padding: 18px 21px;
     border-radius: var(--radius-md);
-    font-size: 20px;
+    font-size: 30px;
     font-weight: 500;
     cursor: pointer;
     user-select: none;
@@ -262,7 +262,11 @@ textarea {
 
 .checkbox-item {
   padding: 8px 12px;
-  font-size: 14px;
+  font-size: 32px;
+}
+
+input::placeholder, textarea::placeholder {
+  font-size: 28px; /* <--- Helykitöltő szöveg mérete */
 }
 
 .checkbox-item input[type="checkbox"] {
@@ -276,7 +280,7 @@ textarea {
 /* Egyéb név beviteli mező finomhangolása a lenyíló panelben */
 #customPayerInput {
   margin-top: 4px;
-  font-size: 16px;
+  font-size: 32px;
   padding: 10px 12px;
 }
 
@@ -321,7 +325,7 @@ textarea {
     border-radius: 18px;
     padding: 26px 31px;
     margin: 26px 0;
-    font-size: 22px;
+    font-size: 32px;
     color: #1e293b;
     line-height: 1.8;
   }
@@ -342,7 +346,7 @@ textarea {
     color: #92400e;
     border-radius: 14px;
     font-weight: 700;
-    font-size: 21px;
+    font-size: 24px;
     text-align: center;
   }
 
@@ -558,7 +562,7 @@ textarea {
   }
 
   .footer-logo:last-child img {
-    max-height: 234px; /* 117px -> 234px (2x) */
+    max-height: 234px !important; /* 117px -> 234px (2x) */
     width: auto;
     max-width: 100%;
     object-fit: contain;
@@ -636,7 +640,7 @@ textarea {
 select, 
 .custom-select-trigger {
   font-family: inherit !important; /* Átveszi az oldal saját betűtípusát */
-  font-size: 15px !important;      /* Pontosan 15px-es betűméret mindkét mezőben */
+  font-size: 30px !important;      /* Pontosan 15px-es betűméret mindkét mezőben */
   font-weight: 400 !important;     /* Normál, azonos betűvastagság */
   line-height: 1.5;                /* Egyforma sormagasság */
   
