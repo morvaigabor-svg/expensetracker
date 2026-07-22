@@ -44,62 +44,66 @@
     line-height: 1.5;
   }
 
+  /* További +5%-al növelt projektterület (828px * 1.05 = 870px) */
   .container {
-    max-width: 720px;
+    max-width: 900px;
     margin: 0 auto;
   }
 
+  /* Kártyák belső margója */
   .card {
     background: var(--card-bg);
-    padding: 24px;
+    padding: 31px;
     border-radius: var(--radius-xl);
     border: 1px solid var(--card-border);
     box-shadow: var(--card-shadow);
-    margin-bottom: 20px;
+    margin-bottom: 26px;
     transition: var(--transition);
   }
 
   .card h2 {
-    font-size: 20px;
+    font-size: 30px;
     font-weight: 700;
-    margin-bottom: 16px;
+    margin-bottom: 21px;
     color: var(--text-main);
     letter-spacing: -0.3px;
   }
 
+  /* Diagram konténer */
   .chart-container {
     position: relative;
-    height: 320px;
+    height: 416px;
     width: 100%;
-    margin-top: 10px;
+    margin-top: 13px;
   }
 
   .action-buttons-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    margin-top: 16px;
+    gap: 21px;
+    margin-top: 21px;
   }
 
+  /* Akciógombok: +50%-al növelt betűméret és ikonok */
   .action-btn {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 22px 16px;
+    padding: 28px 20px;
     border-radius: var(--radius-xl);
-    font-size: 15px;
+    font-size: 30px; /* 20px -> 30px (+50%) */
     font-weight: 700;
     border: none;
     margin-top: 0;
     cursor: pointer;
     transition: var(--transition);
-    min-height: 110px;
+    min-height: 160px;
   }
 
   .action-btn span:first-child {
-    font-size: 32px;
-    margin-bottom: 8px;
+    font-size: 63px; /* 42px -> 63px (+50%) */
+    margin-bottom: 10px;
   }
 
   .action-btn:active {
@@ -125,14 +129,15 @@
     color: white;
     box-shadow: 0 8px 16px -4px rgba(2, 132, 199, 0.3);
     width: 100%;
-    margin-top: 12px;
+    margin-top: 16px;
     flex-direction: row;
-    gap: 12px;
-    padding: 16px;
+    gap: 16px;
+    padding: 21px;
+    font-size: 30px; /* +50% betűméret */
     min-height: auto;
   }
   .btn-transfer span:first-child {
-    font-size: 22px;
+    font-size: 42px; /* 28px -> 42px (+50%) */
     margin-bottom: 0;
   }
   .btn-transfer:hover { background: var(--transfer-hover); }
@@ -140,29 +145,29 @@
   .btn-back {
     background: #64748b;
     color: white;
-    margin-bottom: 16px;
+    margin-bottom: 21px;
     margin-top: 0;
-    padding: 12px 18px;
-    font-size: 14px;
+    padding: 16px 23px;
+    font-size: 24px;
     border-radius: var(--radius-md);
   }
 
   label {
     display: block;
-    margin-top: 16px;
-    margin-bottom: 6px;
+    margin-top: 21px;
+    margin-bottom: 8px;
     font-weight: 600;
-    font-size: 14px;
+    font-size: 18px;
     color: #334155;
   }
 
   input, select, textarea {
     width: 100%;
-    padding: 14px 16px;
+    padding: 18px 21px;
     background: #ffffff;
     border: 1px solid #cbd5e1;
     border-radius: var(--radius-md);
-    font-size: 16px;
+    font-size: 20px;
     color: var(--text-main);
     outline: none;
     transition: var(--transition);
@@ -175,16 +180,16 @@
 
   textarea {
     resize: vertical;
-    min-height: 80px;
+    min-height: 104px;
   }
 
   .upload-box {
     border: 2px dashed #93c5fd;
-    padding: 20px;
+    padding: 26px;
     text-align: center;
     border-radius: var(--radius-lg);
     background: var(--primary-light);
-    margin-top: 8px;
+    margin-top: 10px;
     transition: var(--transition);
   }
 
@@ -192,7 +197,7 @@
     color: var(--primary);
     cursor: pointer;
     margin: 0;
-    font-size: 15px;
+    font-size: 20px;
     font-weight: 700;
   }
 
@@ -200,14 +205,14 @@
 
   button {
     width: 100%;
-    padding: 16px;
+    padding: 21px;
     background: var(--primary);
     color: white;
     border: none;
     border-radius: var(--radius-md);
-    font-size: 16px;
+    font-size: 20px;
     font-weight: 700;
-    margin-top: 20px;
+    margin-top: 26px;
     cursor: pointer;
     transition: var(--transition);
   }
@@ -220,13 +225,13 @@
     align-items: center;
     background: #ffffff;
     border: 1px solid #cbd5e1;
-    padding: 14px 16px;
+    padding: 18px 21px;
     border-radius: var(--radius-md);
-    font-size: 16px;
+    font-size: 20px;
     font-weight: 500;
     cursor: pointer;
     user-select: none;
-    margin-top: 6px;
+    margin-top: 8px;
     transition: var(--transition);
   }
 
@@ -235,8 +240,8 @@
     border-top: none;
     border-radius: 0 0 var(--radius-md) var(--radius-md);
     background: #ffffff;
-    padding: 8px 12px;
-    max-height: 240px;
+    padding: 10px 16px;
+    max-height: 312px;
     overflow-y: auto;
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
   }
@@ -244,16 +249,16 @@
   .checkbox-item {
     display: flex;
     align-items: center;
-    padding: 10px 6px;
+    padding: 13px 8px;
     border-bottom: 1px solid #f1f5f9;
-    font-size: 15px;
+    font-size: 19px;
     cursor: pointer;
   }
 
   .checkbox-item input[type="checkbox"] {
-    width: 20px;
-    height: 20px;
-    margin-right: 12px;
+    width: 26px;
+    height: 26px;
+    margin-right: 16px;
     accent-color: var(--income);
     cursor: pointer;
   }
@@ -262,9 +267,9 @@
     font-weight: 700;
     color: var(--income);
     background: var(--income-light);
-    padding: 10px;
+    padding: 13px;
     border-radius: var(--radius-sm);
-    margin-top: 8px;
+    margin-top: 10px;
   }
 
   .dialog {
@@ -285,7 +290,7 @@
     left: 50%;
     transform: translateX(-50%);
     background: #ffffff;
-    padding: 32px;
+    padding: 42px;
     border-radius: 24px;
     width: 90%;
     max-width: 640px;
@@ -306,9 +311,9 @@
     background: #f8fafc;
     border: 2px solid #e2e8f0;
     border-radius: 18px;
-    padding: 20px 24px;
-    margin: 20px 0;
-    font-size: 17px;
+    padding: 26px 31px;
+    margin: 26px 0;
+    font-size: 22px;
     color: #1e293b;
     line-height: 1.8;
   }
@@ -317,35 +322,35 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: 13px;
     border-bottom: 1px dashed #cbd5e1;
-    padding-bottom: 8px;
+    padding-bottom: 10px;
   }
 
   .status-progress {
-    margin: 16px 0;
-    padding: 16px;
+    margin: 21px 0;
+    padding: 21px;
     background: #fef3c7;
     color: #92400e;
     border-radius: 14px;
     font-weight: 700;
-    font-size: 16px;
+    font-size: 21px;
     text-align: center;
   }
 
-  .dialog-actions { display: flex; gap: 16px; margin-top: 24px; }
-  .dialog-actions.vertical { flex-direction: column; gap: 12px; }
+  .dialog-actions { display: flex; gap: 21px; margin-top: 31px; }
+  .dialog-actions.vertical { flex-direction: column; gap: 16px; }
 
   .dialog-actions button {
     flex: 1;
     margin-top: 0;
-    padding: 18px 20px;
-    font-size: 18px;
+    padding: 23px 26px;
+    font-size: 26px;
     font-weight: 800;
     border-radius: 16px;
     border: none;
     cursor: pointer;
-    min-height: 56px;
+    min-height: 73px;
   }
 
   .btn-secondary { background: #cbd5e1 !important; color: #334155 !important; }
@@ -374,22 +379,34 @@
 
   .text-center { text-align: center; }
 
+  /* Fejléc stílusai */
   .paykal-header {
-    height: 128px;
+    min-height: 166px;
+    height: auto;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
     border-radius: 24px;
-    margin-bottom: 20px;
+    margin-bottom: 26px;
+    padding: 20px;
     box-shadow: 0 12px 24px -6px rgba(37, 99, 235, 0.35);
   }
 
   .paykal-header h1 {
-    font-size: 42px;
+    font-size: 72px;
     font-weight: 900;
     color: #ffffff !important;
     letter-spacing: -1px;
+    line-height: 1.2;
+  }
+
+  .paykal-header .subtitle {
+    color: #ffffff !important;
+    line-height: 1.7;
+    font-size: 30px;
+    font-weight: 500;
   }
 
   .balance-card {
@@ -397,36 +414,38 @@
     background: linear-gradient(180deg, #f0f9ff 0%, #ffffff 100%);
     border: 1.5px solid #bae6fd;
     border-radius: 24px;
-    padding: 28px 20px;
+    padding: 36px 26px;
     box-shadow: 0 12px 30px -5px rgba(2, 132, 199, 0.08);
-    margin-bottom: 20px;
+    margin-bottom: 26px;
   }
 
   .balance-label {
-    font-size: 26px;
+    font-size: 40px;
     font-weight: 800;
     color: #0369a1;
     text-transform: uppercase;
     letter-spacing: 1px;
   }
 
+  /* MEGDUPLÁZOTT EGYESÍTETT EGYENLEG (224px -> 448px) */
   .total-balance-amount {
-    font-size: 112px;
+    font-size: 55px !important;
     font-weight: 900;
     color: #0f172a;
-    margin: 8px 0 20px 0;
-    letter-spacing: -2px;
-    line-height: 1.1;
+    margin: 10px 0 26px 0;
+    letter-spacing: -6px;
+    line-height: 1;
+    word-break: break-word;
   }
 
   .balance-bar-wrapper {
     display: flex;
-    height: 14px;
+    height: 18px;
     width: 100%;
     background: #e2e8f0;
     border-radius: 999px;
     overflow: hidden;
-    margin-bottom: 20px;
+    margin-bottom: 26px;
   }
 
   .balance-bar { height: 100%; transition: width 0.4s ease; }
@@ -436,14 +455,14 @@
   .balance-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
+    gap: 16px;
   }
 
   .balance-box {
     background: #ffffff;
     border: 1px solid #cbd5e1;
-    border-radius: 16px;
-    padding: 16px 12px;
+    border-radius: 20px;
+    padding: 21px 16px;
     text-align: center;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03);
   }
@@ -452,46 +471,47 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    font-size: 14px;
+    gap: 8px;
+    font-size: 24px;
     font-weight: 700;
     color: #64748b;
     text-transform: uppercase;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
   }
 
   .sub-amount {
     display: block;
-    font-size: 24px;
+    font-size: 40px;
     font-weight: 800;
     color: #0f172a;
     letter-spacing: -0.5px;
   }
 
   .dot {
-    width: 10px;
-    height: 10px;
+    width: 13px;
+    height: 13px;
     border-radius: 50%;
     display: inline-block;
   }
   .cash-dot { background: #16a34a; }
   .bank-dot { background: #2563eb; }
 
+  /* Időszakszűrő gombok: +50% betűméret (26px) */
   .time-filter-group {
     display: flex;
     background: #f1f5f9;
-    padding: 4px;
+    padding: 5px;
     border-radius: 12px;
-    gap: 4px;
-    margin-bottom: 16px;
+    gap: 5px;
+    margin-bottom: 21px;
   }
 
   .time-btn {
     flex: 1;
-    padding: 8px 0;
+    padding: 12px 0;
     background: transparent;
     color: #64748b;
-    font-size: 13px;
+    font-size: 26px; /* 17px -> 26px (+50%) */
     font-weight: 700;
     border: none;
     border-radius: 8px;
@@ -505,20 +525,21 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
   }
 
+  /* MEGDUBÁLOTT LOGÓ MÉRETEK KISZOLGÁLÁSA (2x) */
   .paykal-footer {
     display: flex;
     align-items: center;
     justify-content: space-between;
     background-color: #ffffff;
-    padding: 24px 20px;
-    margin-top: 24px;
+    padding: 31px 26px;
+    margin-top: 31px;
     border: 1px solid #e2e8f0;
     border-radius: var(--radius-xl);
-    gap: 16px;
+    gap: 21px;
   }
 
   .footer-logo:first-child img {
-    max-height: 180px;
+    max-height: 468px; /* 234px -> 468px (2x) */
     width: auto;
     max-width: 100%;
     object-fit: contain;
@@ -529,9 +550,78 @@
   }
 
   .footer-logo:last-child img {
-    max-height: 90px;
+    max-height: 234px; /* 117px -> 234px (2x) */
     width: auto;
     max-width: 100%;
     object-fit: contain;
   }
+
+
+  /* ==========================================
+   MOBILRA OPTIMALIZÁLT STÍLUSOK (Reszponzivitás)
+   ========================================== */
+@media (max-width: 600px) {
+  body {
+    padding: 6px 4px; /* Minimális margó a telefon fizikai szélétől */
+  }
+
+  .container {
+    width: 100%;
+    max-width: 100%;
+    padding: 0;
+  }
+
+  /* Kártyák belső margójának csökkentése mobilon */
+  .card, .balance-card {
+    padding: 20px 12px;
+    border-radius: 16px;
+    margin-bottom: 16px;
+  }
+
+  /* Fejléc mobilon */
+  .paykal-header {
+    padding: 16px 10px;
+    min-height: auto;
+  }
+  
+  .paykal-header h1 {
+    font-size: 38px;
+  }
+
+  /* A FŐ EGYENLEG mobilon automatikusan igazodik a kijelző szélességéhez (vw = Viewport Width) */
+  .total-balance-amount {
+    font-size: 14vw !important; /* Mindig pontosan bekapcsolja a mobil kijelzőjébe */
+    letter-spacing: -1px;
+    margin: 8px 0 16px 0;
+  }
+
+  /* Akciógombok finomítása mobilon */
+  .action-btn {
+    padding: 18px 10px;
+    font-size: 22px;
+    min-height: 120px;
+  }
+
+  .action-btn span:first-child {
+    font-size: 42px;
+  }
+
+  /* Lábléc és logók igazítása mobilon */
+  .paykal-footer {
+    padding: 16px 12px;
+    flex-direction: column; /* Egymás alá rakja a logókat mobilon */
+    gap: 16px;
+  }
+
+  .footer-logo:last-child {
+    margin-left: 0;
+  }
+
+  .footer-logo:first-child img,
+  .footer-logo:last-child img {
+    max-height: 120px;
+  }
+}
+
+
 </style>
