@@ -1,732 +1,248 @@
 <style>
   :root {
-    /* Szemkímélő, prémium háttér- és kártyatónusok */
-    --bg-body: #f3f5f8;
+    --bg-body: #f1f5f9;
     --text-main: #0f172a;
-    --text-muted: #64748b;
-    --card-bg: #fafbfc;
-    --card-border: #e2e8f0;
-    --card-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.04), 0 2px 6px -1px rgba(15, 23, 42, 0.02);
+    --card-bg: #ffffff;
+    --card-border: #cbd5e1;
+    --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     
     --primary: #2563eb;
-    --primary-hover: #1d4ed8;
-    --primary-light: #eff6ff;
-
     --expense: #dc2626;
-    --expense-hover: #b91c1c;
-
     --income: #16a34a;
-    --income-hover: #15803d;
-    --income-light: #f0fdf4;
-
     --transfer: #0284c7;
-    --transfer-hover: #0369a1;
 
-    --radius-sm: 12px;
-    --radius-md: 18px;
-    --radius-lg: 24px;
-    --radius-xl: 28px;
-
-    --transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    --radius-md: 10px;
+    --radius-xl: 18px;
   }
 
   * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     -webkit-tap-highlight-color: transparent;
   }
 
   body {
     background-color: var(--bg-body);
     color: var(--text-main);
-    padding: 20px;
+    padding: 16px;
     line-height: 1.5;
-    font-size: 30px;
+    font-size: 16px;
   }
 
   .container {
-    max-width: 920px;
+    max-width: 600px;
     width: 100%;
     margin: 0 auto;
   }
 
-  .card {
-    background: var(--card-bg);
-    padding: 36px 32px;
-    border-radius: var(--radius-xl);
-    border: 1px solid var(--card-border);
-    box-shadow: var(--card-shadow);
-    margin-bottom: 28px;
-    transition: var(--transition);
-  }
-
-  .card h2 {
-    font-size: clamp(34px, 5.8vw, 46px);
-    font-weight: 700;
-    margin-bottom: 24px;
-    color: var(--text-main);
-    letter-spacing: -0.3px;
-  }
-
-  /* --- HEADER & "WALLET OF CALASANZ" ALCÍM --- */
   .paykal-header {
-    min-height: 180px;
-    height: auto;
-    padding: 28px 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
-    border-radius: 28px;
-    margin-bottom: 24px;
-    box-shadow: 0 12px 24px -6px rgba(37, 99, 235, 0.3);
+    padding: 16px;
     text-align: center;
+    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+    border-radius: var(--radius-xl);
+    margin-bottom: 20px;
   }
 
   .paykal-header h1 {
-    font-size: clamp(48px, 8.5vw, 76px);
+    font-size: 32px;
     font-weight: 900;
-    color: #ffffff !important;
-    letter-spacing: -1px;
-    line-height: 1.1;
-  }
-
-  .paykal-header .subtitle,
-  .paykal-header h2,
-  .paykal-subtitle {
-    font-size: clamp(24px, 4.5vw, 36px);
-    font-weight: 600;
-    color: rgba(255, 255, 255, 0.92) !important;
-    line-height: 1.5; /* 1.5-ös sortáv a megadottak szerint */
-    margin-top: 10px;
-    letter-spacing: 0.5px;
-  }
-
-  /* --- DASHBOARD NYITÓOLDAL ELEMEI (MÉRETEK VÁLTOZATLANOK) --- */
-  .balance-card {
-    text-align: center;
-    background: linear-gradient(180deg, #f0f9ff 0%, #fafcff 100%);
-    border: 1.5px solid #bae6fd;
-    border-radius: 28px;
-    padding: 36px 24px;
-    box-shadow: 0 12px 30px -5px rgba(2, 132, 199, 0.08);
-    margin-bottom: 28px;
-  }
-
-  .balance-label {
-    font-size: clamp(32px, 6vw, 48px);
-    font-weight: 800;
-    color: #0369a1;
-    text-transform: uppercase;
+    color: #ffffff;
     letter-spacing: 1px;
   }
 
+  .card {
+    background: var(--card-bg);
+    padding: 20px;
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--card-border);
+    box-shadow: var(--card-shadow);
+    margin-bottom: 20px;
+  }
+
+  .card h2 {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+
+  .balance-card {
+    text-align: center;
+    background: #ffffff;
+    border: 1px solid #bae6fd;
+  }
+
+  .balance-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: #0369a1;
+    text-transform: uppercase;
+  }
+
   .total-balance-amount {
-    font-size: clamp(5rem, 16vw, 12rem);
+    font-size: 36px;
     font-weight: 900;
-    color: #0f172a;
-    margin: 12px 0 28px 0;
-    letter-spacing: -2px;
-    line-height: 1.05;
-    word-break: break-word;
-    overflow-wrap: break-word;
+    margin: 8px 0;
   }
-
-  .balance-bar-wrapper {
-    display: flex;
-    height: 20px;
-    width: 100%;
-    background: #e2e8f0;
-    border-radius: 999px;
-    overflow: hidden;
-    margin-bottom: 28px;
-  }
-
-  .balance-bar { height: 100%; transition: width 0.4s ease; }
-  .cash-bar { background: #16a34a; }
-  .bank-bar { background: #2563eb; }
 
   .balance-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 16px;
+    gap: 10px;
+    margin-top: 12px;
   }
 
   .balance-box {
     background: #f8fafc;
-    border: 1px solid #cbd5e1;
-    border-radius: 20px;
-    padding: 22px 16px;
-    text-align: center;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+    border: 1px solid #e2e8f0;
+    border-radius: var(--radius-md);
+    padding: 10px;
   }
 
   .sub-label {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    font-size: 26px;
+    font-size: 12px;
     font-weight: 700;
     color: #64748b;
-    text-transform: uppercase;
-    margin-bottom: 10px;
   }
 
   .sub-amount {
     display: block;
-    font-size: clamp(30px, 7vw, 42px);
+    font-size: 18px;
     font-weight: 800;
-    color: #0f172a;
-    letter-spacing: -0.5px;
-    word-break: break-word;
-  }
-
-  .dot {
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    display: inline-block;
-  }
-  .cash-dot { background: #16a34a; }
-  .bank-dot { background: #2563eb; }
-
-  .chart-container {
-    position: relative;
-    height: 380px;
-    width: 100%;
-    margin-top: 16px;
   }
 
   .action-buttons-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    margin-top: 20px;
+    gap: 10px;
+    margin-top: 14px;
   }
 
   .action-btn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 28px 20px;
-    border-radius: var(--radius-xl);
-    font-size: 32px;
+    padding: 14px;
+    border-radius: var(--radius-md);
+    font-size: 16px;
     font-weight: 700;
     border: none;
-    margin-top: 0;
+    color: white;
     cursor: pointer;
-    transition: var(--transition);
-    min-height: 150px;
   }
 
-  .action-btn span:first-child {
-    font-size: 64px;
-    margin-bottom: 10px;
-  }
+  .btn-income { background: var(--income); }
+  .btn-expense { background: var(--expense); }
+  .btn-transfer { background: var(--transfer); width: 100%; margin-top: 10px; }
 
-  .action-btn:hover { transform: translateY(-2px); }
-  .action-btn:active { transform: scale(0.98); }
-
-  .btn-income {
-    background: var(--income);
-    color: white;
-    box-shadow: 0 8px 16px -4px rgba(22, 163, 74, 0.3);
-  }
-  .btn-income:hover { background: var(--income-hover); }
-
-  .btn-expense {
-    background: var(--expense);
-    color: white;
-    box-shadow: 0 8px 16px -4px rgba(220, 38, 38, 0.3);
-  }
-  .btn-expense:hover { background: var(--expense-hover); }
-
-  .btn-transfer {
-    background: var(--transfer);
-    color: white;
-    box-shadow: 0 8px 16px -4px rgba(2, 132, 199, 0.3);
-    width: 100%;
-    margin-top: 20px;
-    flex-direction: row;
-    gap: 16px;
-    padding: 24px;
-    font-size: 32px;
-    min-height: auto;
-  }
-  .btn-transfer span:first-child {
-    font-size: 42px;
-    margin-bottom: 0;
-  }
-  .btn-transfer:hover { 
-    background: var(--transfer-hover); 
-    transform: translateY(-2px);
-  }
-
-  /* --- TÖBBI USER INTERFACE (-5% BETŰMÉRET & MŰKÖDŐ LEGÖRDÜLŐK) --- */
   .btn-back {
     background: #64748b;
     color: white;
-    margin-bottom: 28px;
-    margin-top: 0;
-    padding: 20px 32px;
-    font-size: 40px; /* 42px -> 40px (-5%) */
+    padding: 10px 16px;
+    font-size: 15px;
     font-weight: 700;
     border-radius: var(--radius-md);
     border: none;
     cursor: pointer;
-    transition: var(--transition);
+    margin-bottom: 14px;
   }
-  .btn-back:hover { background: #475569; }
+
+  .form-group {
+    margin-bottom: 14px;
+    position: relative;
+  }
 
   label {
     display: block;
-    margin-top: 28px;
-    margin-bottom: 10px;
+    margin-bottom: 4px;
     font-weight: 700;
-    font-size: 40px; /* 42px -> 40px (-5%) */
+    font-size: 15px;
     color: #334155;
   }
 
-  input, textarea {
-    width: 100%;
-    padding: 22px 26px;
-    background: #f8fafc;
-    border: 2px solid #cbd5e1;
-    border-radius: var(--radius-md);
-    font-size: 45px; /* 48px -> 45px (-5%) */
-    font-weight: 500;
-    color: var(--text-main);
-    outline: none;
-    transition: var(--transition);
-  }
-
-  /* NATÍV SELECT BEÁLLÍTÁS A TÖKÉLETES MŰKÖDÉSÉRT */
-  select {
-    width: 100%;
-    padding: 20px 24px;
-    background: #f8fafc;
-    border: 2px solid #cbd5e1;
-    border-radius: var(--radius-md);
-    font-size: 38px; /* 40px -> 38px (-5%) */
-    font-weight: 600;
-    color: var(--text-main);
-    outline: none;
-    cursor: pointer;
-    transition: var(--transition);
-    display: block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    pointer-events: auto !important;
-    appearance: auto;
-    -webkit-appearance: listbox;
-  }
-
-  select option {
-    font-size: 30px;
-    padding: 14px;
-    background: #ffffff;
-    color: #0f172a;
-  }
-
-  input:focus, select:focus, textarea:focus {
-    background: #ffffff;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.15);
-  }
-
+  /* NORMÁL, TISZTA INPUT ÉS SELECT MEZŐK */
+  input[type="text"],
+  input[type="number"],
+  input[type="date"],
+  select,
   textarea {
-    resize: vertical;
-    min-height: 130px;
-  }
-
-  .upload-box {
-    border: 3px dashed #93c5fd;
-    padding: 32px;
-    text-align: center;
-    border-radius: var(--radius-lg);
-    background: var(--primary-light);
-    margin-top: 16px;
-    transition: var(--transition);
-  }
-
-  .upload-box label {
-    color: var(--primary);
-    cursor: pointer;
-    margin: 0;
-    font-size: 40px; /* -5% */
-    font-weight: 700;
-  }
-
-  input[type="file"] { display: none; }
-
-  button {
     width: 100%;
-    padding: 24px;
-    background: var(--primary);
-    color: white;
-    border: none;
+    padding: 12px;
+    background: #ffffff;
+    border: 1.5px solid #cbd5e1;
     border-radius: var(--radius-md);
-    font-size: 45px; /* 48px -> 45px (-5%) */
-    font-weight: 800;
-    margin-top: 30px;
-    cursor: pointer;
-    transition: var(--transition);
+    font-size: 16px;
+    color: var(--text-main);
+    outline: none;
+    position: relative;
+    z-index: 1;
   }
 
-  button:active { transform: scale(0.99); }
+  select {
+    cursor: pointer;
+    background-color: #ffffff;
+  }
 
-  /* CUSTOM SELECT WRAPPER ÉS ABSZOLÚT LEBEGŐ DROPDOWN PANEL (JAZZ FIX) */
+  /* CUSTOMLIST BEFIZETŐK HISSZÁJA */
   .custom-select-wrapper {
     position: relative;
     width: 100%;
-    z-index: 100;
+    z-index: 5;
   }
 
   .custom-select-trigger {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #f8fafc;
-    border: 2px solid #cbd5e1;
-    padding: 22px 26px;
+    background: #ffffff;
+    border: 1.5px solid #cbd5e1;
+    padding: 12px;
     border-radius: var(--radius-md);
-    font-size: 45px; /* -5% */
-    font-weight: 600;
+    font-size: 16px;
     cursor: pointer;
-    user-select: none;
-    margin-top: 12px;
-    transition: var(--transition);
-    position: relative;
-    z-index: 101;
-    pointer-events: auto !important;
   }
 
-  .custom-select-trigger:hover { background: #f1f5f9; }
-
-  /* Lebegő, abszolút pozícionált felület, ami garantáltan kinyílik */
   .dropdown-panel {
-    position: absolute !important;
+    position: absolute;
     top: 100%;
     left: 0;
     right: 0;
-    z-index: 99999 !important;
-    pointer-events: auto !important;
-    border: 2px solid #cbd5e1;
-    border-top: none;
-    border-radius: 0 0 var(--radius-md) var(--radius-md);
+    z-index: 100;
+    border: 1.5px solid #cbd5e1;
+    border-radius: var(--radius-md);
     background: #ffffff;
-    padding: 16px 20px;
-    max-height: 380px;
+    padding: 10px;
+    max-height: 220px;
     overflow-y: auto;
-    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    margin-top: 4px;
   }
 
   .dropdown-panel.hidden {
     display: none !important;
+    pointer-events: none !important;
   }
 
   .checkbox-item {
     display: flex;
     align-items: center;
-    padding: 16px 12px;
-    border-bottom: 1px solid #e2e8f0;
-    font-size: 40px; /* -5% */
+    padding: 8px 4px;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 15px;
     cursor: pointer;
-    user-select: none;
+  }
+
+  .checkbox-item.border-top {
+    border-top: 2px solid #e2e8f0;
+    margin-top: 6px;
+    padding-top: 10px;
   }
 
   .checkbox-item input[type="checkbox"] {
-    width: 36px;
-    height: 36px;
-    margin-right: 18px;
-    accent-color: var(--income);
-    cursor: pointer;
+    width: 18px;
+    height: 18px;
+    margin-right: 10px;
   }
 
-  .other-item {
-    font-weight: 700;
-    color: var(--income);
-    background: var(--income-light);
-    padding: 16px;
-    border-radius: var(--radius-sm);
-    margin-top: 14px;
-  }
-
-  /* --- MODAL ABLAKOK (-5% BETŰMÉRET ÉS ÁLLANDÓ OLVASHATÓSÁG) --- */
-  .dialog {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100vw; height: 100vh;
-    background: rgba(15, 23, 42, 0.82);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    z-index: 99999;
-  }
-
-  .dialog.hidden, .hidden { display: none !important; }
-
-  .dialog-content {
-    position: fixed;
-    top: 8%;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #1e293b;
-    color: #f8fafc;
-    padding: 44px;
-    border-radius: 32px;
-    border: 1px solid #334155;
-    width: 95%;
-    max-width: 884px;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
-    animation: modalTopPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-    margin: 0 !important;
-    box-sizing: border-box;
-    max-height: 86vh;
-    overflow-y: auto;
-  }
-
-  .dialog-content h2 {
-    font-size: clamp(40px, 7.6vw, 53px); /* -5% */
-    color: #ffffff;
-    margin-bottom: 22px;
-    line-height: 1.2;
-  }
-
-  .dialog-desc {
-    font-size: 40px; /* -5% */
-    color: #cbd5e1;
-    margin-bottom: 22px;
-  }
-
-  @keyframes modalTopPop {
-    from { opacity: 0; transform: translate(-50%, -15px) scale(0.96); }
-    to { opacity: 1; transform: translate(-50%, 0) scale(1); }
-  }
-
-  .summary-box {
-    background: #0f172a;
-    border: 2px solid #334155;
-    border-radius: 24px;
-    padding: 30px 34px;
-    margin: 26px 0;
-    font-size: 45px; /* -5% */
-    color: #f1f5f9;
-    line-height: 1.8;
-  }
-
-  .summary-box p {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 18px;
-    border-bottom: 1px dashed #334155;
-    padding-bottom: 12px;
-  }
-
-  /* KIEMELTEN NAGY "ÖSSZES KÖLTSÉG" SOR (-5% FINOMHANGOLÁSSAL) */
-  .summary-box .total-cost,
-  .summary-box p.total,
-  .summary-box p:last-child {
-    font-size: 61px !important; /* 64px -> 61px (-5%) */
-    font-weight: 900 !important;
-    color: #ffffff !important;
-    border-top: 3px solid #475569;
-    border-bottom: none;
-    padding-top: 18px;
-    margin-top: 18px;
-  }
-
-  .summary-box .total-cost strong,
-  .summary-box p.total strong,
-  .summary-box p:last-child strong {
-    color: #38bdf8 !important;
-    font-size: 65px !important; /* 68px -> 65px (-5%) */
-  }
-
-  .status-progress {
-    margin: 22px 0;
-    padding: 24px;
-    background: #78350f;
-    color: #fef08a;
-    border-radius: 20px;
-    font-weight: 800;
-    font-size: 45px; /* -5% */
-    text-align: center;
-  }
-
-  .dialog-actions { display: flex; gap: 22px; margin-top: 30px; }
-  .dialog-actions.vertical { flex-direction: column; gap: 18px; }
-
-  .dialog-actions button {
-    flex: 1;
-    margin-top: 0;
-    padding: 26px 30px;
-    font-size: 49px; /* 52px -> 49px (-5%) */
-    font-weight: 900;
-    border-radius: 20px;
-    border: none;
-    cursor: pointer;
-    min-height: 80px;
-    transition: var(--transition);
-  }
-
-  .btn-secondary { 
-    background: #475569 !important; 
-    color: #f8fafc !important; 
-  }
-  .btn-secondary:hover { background: #64748b !important; }
-
-  /* ZÖLD MENTÉS GOMBOK */
-  .btn-confirm-expense,
-  .btn-confirm-income,
-  .btn-confirm,
-  .btn-save,
-  .dialog-actions button:not(.btn-secondary),
-  #btnConfirmExpense,
-  #btnConfirmIncome,
-  #btnSaveExpense,
-  #btnSaveIncome {
-    background-color: #16a34a !important;
-    background: #16a34a !important;
-    color: #ffffff !important;
-  }
-
-  .btn-confirm-expense:hover,
-  .btn-confirm-income:hover,
-  .dialog-actions button:not(.btn-secondary):hover {
-    background-color: #15803d !important;
-    background: #15803d !important;
-  }
-
-  .text-center { text-align: center; }
-
-  .time-filter-group {
-    display: flex;
-    background: #f1f5f9;
-    padding: 8px;
-    border-radius: 18px;
-    gap: 8px;
-    margin-bottom: 24px;
-  }
-
-  .time-btn {
-    flex: 1;
-    padding: 14px 0;
-    background: transparent;
-    color: #64748b;
-    font-size: 28px;
-    font-weight: 700;
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    margin-top: 0;
-    transition: var(--transition);
-  }
-
-  .time-btn.active {
-    background: #ffffff;
-    color: #1e3a8a;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-  }
-
-  /* 🖼️ VISSZAÁLLÍTOTT, STABIL FOOTER (PIARISTA 360PX, KM 117PX) */
-  .paykal-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background-color: #fafbfc;
-    padding: 32px 24px;
-    margin-top: 32px;
-    border: 1px solid #e2e8f0;
-    border-radius: var(--radius-xl);
-    gap: 20px;
-  }
-
-  .footer-logo:first-child img {
-    max-height: 360px;
-    width: auto;
-    max-width: 100%;
-    object-fit: contain;
-  }
-
-  .footer-logo:last-child {
-    margin-left: auto;
-  }
-
-  .footer-logo:last-child img {
-    max-height: 117px;
-    width: auto;
-    max-width: 100%;
-    object-fit: contain;
-  }
-
-  /* Mobilra igazított reszponzív nézet */
-  @media (max-width: 600px) {
-    body {
-      padding: 12px;
-      font-size: 22px;
-    }
-
-    input, textarea {
-      font-size: 30px;
-      padding: 16px;
-    }
-
-    select {
-      font-size: 26px;
-      padding: 14px;
-    }
-
-    label { font-size: 28px; }
-
-    .dialog-content {
-      padding: 24px 18px;
-      border-radius: 24px;
-      width: 96%;
-    }
-
-    .summary-box {
-      font-size: 30px;
-      padding: 18px;
-    }
-
-    .summary-box .total-cost,
-    .summary-box p.total,
-    .summary-box p:last-child {
-      font-size: 40px !important;
-    }
-
-    .summary-box .total-cost strong,
-    .summary-box p.total strong,
-    .summary-box p:last-child strong {
-      font-size: 44px !important;
-    }
-
-    .dialog-actions button {
-      font-size: 30px;
-      padding: 18px;
-    }
-
-    .paykal-footer {
-      padding: 20px 16px;
-      flex-direction: column;
-      gap: 20px;
-      text-align: center;
-    }
-
-    .footer-logo:last-child { margin-left: 0; }
-
-    .footer-logo:first-child img {
-      max-height: 220px;
-    }
-
-    .footer-logo:last-child img {
-      max-height: 90px;
-    }
+  .hidden {
+    display: none !important;
   }
 </style>
