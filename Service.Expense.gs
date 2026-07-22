@@ -77,27 +77,14 @@ function saveExpenseData(expense, imageUrls = [], customId = null, gpsCoords = n
     throw error;
   }
 }
- /**
- * Bevétel kötegelt mentési szolgáltatás (frissített oszlopsorrenddel)
- */
+
 function saveIncomeData(incomeData) {
   try {
     const ss = SpreadsheetApp.openById(CONFIG.SHEET_ID);
-    let sheet = ss.getSheetByName(APP.SHEETS.INCOME || "Bevételek");
+    const sheet = ss.getSheetByName(APP.SHEETS.INCOME || "Bevételek");
 
-    // Ha még nem létezik a fül, automatikusan létrehozzuk az új oszlopsorrenddel
     if (!sheet) {
-      sheet = ss.insertSheet(APP.SHEETS.INCOME || "Bevételek");
-      sheet.appendRow([
-        "Dátum",                            // A oszlop
-        "Befizetés célja",                  // B oszlop
-        "Összeg (forintban)",               // C oszlop (ÁTTENVE IDE)
-        "Befizetés módja",                  // D oszlop (ÁTTENVE IDE)
-        "Befizető neve",                    // E oszlop (ÁTTENVE IDE)
-        "Megjegyzés",                       // F oszlop
-        "Fizetés egyedi azonosítója",       // G oszlop
-        "Email címe a rögzítő személynek"  // H oszlop
-      ]);
+      throw new Error("A Bevételek munkalap nem található!");
     }
 
     const userEmail = Session.getActiveUser().getEmail() || "Ismeretlen";
@@ -112,7 +99,7 @@ function saveIncomeData(incomeData) {
       throw new Error("Legalább egy befizetőt meg kell adni!");
     }
 
-    const now = new Date();
+    const now = new Date(); // Pontos rögzítési időbélyeg
     const timeStamp = Utilities.formatDate(now, APP.TIMEZONE || "Europe/Budapest", "yyyyMMdd");
     const lastRow = sheet.getLastRow();
 
@@ -124,7 +111,7 @@ function saveIncomeData(incomeData) {
       const id = "INC-" + timeStamp + "-" + seq;
       ids.push(id);
 
-      // Új oszlopsorrend összerakása:
+      // Oszlopsorrend összerakása (9 oszlop):
       rowsToAppend.push([
         dateStr,         // A: Dátum
         purpose,         // B: Befizetés célja
@@ -133,13 +120,15 @@ function saveIncomeData(incomeData) {
         payer,           // E: Befizető neve
         comment,         // F: Megjegyzés
         id,              // G: Fizetés egyedi azonosítója
-        userEmail        // H: Email címe a rögzítő személynek
+        userEmail,       // H: Email címe a rögzítő személynek
+        now              // I: Rögzítés ideje (ÉÉÉÉ.MM.DD HH:MM:SS)
       ]);
     });
 
     if (rowsToAppend.length > 0) {
-      const startRow = sheet.getLastRow() + 1;
-      sheet.getRange(startRow, 1, rowsToAppend.length, 8).setValues(rowsToAppend);
+      const startRow = lastRow + 1;
+      // 9 oszlop terjedelmű írás a lapra
+      sheet.getRange(startRow, 1, rowsToAppend.length, 9).setValues(rowsToAppend);
     }
 
     if (typeof writeLog === "function") {
@@ -161,25 +150,16 @@ function saveIncomeData(incomeData) {
 }
 
 /**
- * Pénzmozgások (átvezetések) mentési szolgáltatása
+ * Pénzmozgás mentési szolgáltatás (G oszlop időbélyeggel)
  */
 function saveTransferData(transferData) {
   try {
     const ss = SpreadsheetApp.openById(CONFIG.SHEET_ID);
     const sheetName = "Pénzmozgások";
-    let sheet = ss.getSheetByName(sheetName);
+    const sheet = ss.getSheetByName(sheetName);
 
-    // Ha még nem létezik a Pénzmozgások fül, automatikusan létrehozzuk és felfejlécezzük
     if (!sheet) {
-      sheet = ss.insertSheet(sheetName);
-      sheet.appendRow([
-        "Dátum",                            // A oszlop
-        "Tranzakció típusa",                // B oszlop
-        "Összeg (forintban)",               // C oszlop
-        "Megjegyzés",                       // D oszlop
-        "Tranzakció egyedi azonosítója",   // E oszlop
-        "Email címe a rögzítő személynek"  // F oszlop
-      ]);
+      throw new Error("A Pénzmozgások munkalap nem található!");
     }
 
     const userEmail = Session.getActiveUser().getEmail() || "Ismeretlen";
@@ -192,21 +172,22 @@ function saveTransferData(transferData) {
       throw new Error("Érvénytelen dátum vagy összeg!");
     }
 
-    // Egyedi azonosító generálása (TRF-YYYYMMDD-001)
+    // Egyedi azonosító generálása és pontos rögzítési időbélyeg
     const now = new Date();
     const timeStamp = Utilities.formatDate(now, APP.TIMEZONE || "Europe/Budapest", "yyyyMMdd");
     const lastRow = sheet.getLastRow();
     const seq = String(lastRow).padStart(3, "0");
     const transferId = "TRF-" + timeStamp + "-" + seq;
 
-    // Új sor hozzáadása a munkalaphoz
+    // Új sor hozzáadása a munkalaphoz (G oszlopban a pontos rögzítési idővel)
     sheet.appendRow([
-      dateStr,
-      type,
-      amount,
-      comment,
-      transferId,
-      userEmail
+      dateStr,     // A: Dátum
+      type,        // B: Tranzakció típusa
+      amount,      // C: Összeg (forintban)
+      comment,     // D: Megjegyzés
+      transferId,  // E: Tranzakció egyedi azonosítója
+      userEmail,   // F: Email címe a rögzítő személynek
+      now          // G: Rögzítés ideje (ÉÉÉÉ.MM.DD HH:MM:SS)
     ]);
 
     if (typeof writeLog === "function") {
