@@ -3,8 +3,8 @@
  * Lekéri az N2, N4, N6 cellákból az aktuális egyenlegeket,
  * és az A-H oszlopokból felépíti az idősoros vonaldiagramot.
  */
-function getPayKalDashboardData(timeFilter) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
+function getPayKalDashboardDataImpl(timeFilter) {
+  var ss = SpreadsheetApp.openById(CONFIG.SHEET_ID);
   var balanceSheet = ss.getSheetByName('Egyenleg');
 
   if (!balanceSheet) {
@@ -28,10 +28,8 @@ function getPayKalDashboardData(timeFilter) {
     };
   }
 
-  // A2-től H oszlopig lekérjük az adatokat (A = 0. index, H = 7. index)
   var rawData = balanceSheet.getRange(2, 1, lastRow - 1, 8).getValues();
 
-  // Szűrő kezdődátumának kiszámítása
   var now = new Date();
   var startDate = new Date();
 
@@ -48,25 +46,19 @@ function getPayKalDashboardData(timeFilter) {
   var seenDates = {};
   var filteredPoints = [];
 
-  // Mivel a legfrissebb van legfelül (2. sor), fentről lefelé haladunk.
-  // Az első előforduló dátum lesz az aznapi legfrissebb állapot!
   for (var i = 0; i < rawData.length; i++) {
     var rawDate = rawData[i][0];
-    var amount  = Number(rawData[i][7]); // H oszlop (8. oszlop = index 7)
+    var amount  = Number(rawData[i][7]);
 
     if (!rawDate || !(rawDate instanceof Date) || isNaN(rawDate.getTime())) {
       continue;
     }
 
-    // Szűrés a kiválasztott időszakra
     if (rawDate >= startDate && rawDate <= now) {
-      // Dátum kulcs (ÉÉÉÉ-HH-NN) az azonos napok kiszűrésére
       var dateKey = Utilities.formatDate(rawDate, Session.getScriptTimeZone(), "yyyy-MM-dd");
 
-      // Ha még nem dolgoztuk fel ezt a napot, ez a legfrissebb aznapi bejegyzés
       if (!seenDates[dateKey]) {
         seenDates[dateKey] = true;
-        
         var displayLabel = Utilities.formatDate(rawDate, Session.getScriptTimeZone(), "MM.dd.");
         
         filteredPoints.push({
@@ -77,7 +69,6 @@ function getPayKalDashboardData(timeFilter) {
     }
   }
 
-  // Mivel fentről (legfrissebb) haladtunk lefelé (legrégebbi), megfordítjuk az időrendet a diagramhoz
   filteredPoints.reverse();
 
   var labels = [];

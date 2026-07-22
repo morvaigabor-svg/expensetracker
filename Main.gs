@@ -31,6 +31,6 @@ function saveTransfer(transferData) {
   return saveTransferData(transferData);
 }
 
-function getDashboardStats(period) {
-  return getDashboardStatsData(period);
+function getPayKalDashboardData(timeFilter) {
+  return getPayKalDashboardDataImpl(timeFilter);
 }
