@@ -12,20 +12,76 @@
     padding: 16px;
   }
 
+  /* 1.5x-es szélességre növelt fő konténer (480px helyett 720px) */
   .container {
-    max-width: 480px;
+    max-width: 720px;
     margin: 0 auto;
   }
 
-  h1, h2 {
+  /* --- FEJLÉC HÁTTÉRKÉPPEL (70% opacity) --- */
+  .app-header {
+    position: relative;
+    padding: 24px 16px;
     text-align: center;
-    color: #1976d2;
+    border-radius: 16px;
+    overflow: hidden;
     margin-bottom: 16px;
+    background-color: #1976d2; /* Tartalék szín, ha nincs kép */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   }
 
+  /* Külön réteg a háttérképnek az áttetszőséghez */
+  .app-header::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image: url('HA_IDE_TESZED_A_KEPET.jpg'); /* Cseréld ki a saját képed URL-jére */
+    background-size: cover;
+    background-position: center;
+    opacity: 0.7; /* 70% opacity */
+    z-index: 1;
+  }
+
+  .app-header h1 {
+    position: relative;
+    z-index: 2;
+    color: #ffffff;
+    font-size: 28px;
+    font-weight: 800;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+    letter-spacing: 1px;
+  }
+
+  /* --- LÁBLÉC KÉT LOGÓVAL ÉS KÖZÉPSŐ SZÖVEGGEL --- */
+  .app-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: white;
+    border-radius: 14px;
+    margin-top: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+
+  .footer-logo {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+  }
+
+  .footer-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: #757575;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* --- KÁRTYA / TÁBLÁZAT --- */
   .card {
     background: white;
-    padding: 20px;
+    padding: 24px;
     border-radius: 16px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     margin-bottom: 16px;
@@ -87,10 +143,10 @@
     cursor: pointer;
   }
 
-  /* KÉT NAGY EGYMÁS MELLETTI GOMB */
+  /* --- 1.5x-esre MÁSKÁLÁZOTT FŐ GOMBOK --- */
   .action-buttons-grid {
     display: flex;
-    gap: 12px;
+    gap: 16px;
     margin-top: 16px;
   }
 
@@ -100,18 +156,18 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 18px 10px;
-    border-radius: 14px;
-    font-size: 14px;
+    padding: 26px 14px; /* 1.5x padding */
+    border-radius: 16px;
+    font-size: 18px;    /* 1.5x betűméret (12px-14px helyett) */
     font-weight: bold;
     margin-top: 0;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    min-height: 80px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    min-height: 120px;  /* 1.5x magasság (80px helyett 120px) */
   }
 
   .action-btn span:first-child {
-    font-size: 22px;
-    margin-bottom: 6px;
+    font-size: 33px;    /* 1.5x ikon méret (22px helyett 33px) */
+    margin-bottom: 8px;
   }
 
   .btn-income {
@@ -130,14 +186,12 @@
     background: #b71c1c;
   }
 
-  /* Vissza gomb */
   .btn-back {
     background: #757575;
     margin-bottom: 12px;
     margin-top: 0;
   }
 
-  /* Időszak szűrők */
   .filter-group {
     display: flex;
     gap: 8px;
@@ -146,10 +200,10 @@
 
   .filter-btn {
     flex: 1;
-    padding: 8px;
+    padding: 10px;
     background: #e0e0e0;
     color: #444;
-    font-size: 14px;
+    font-size: 15px;
     margin-top: 0;
     border-radius: 8px;
   }
@@ -161,19 +215,21 @@
 
   .total-display {
     text-align: center;
-    font-size: 16px;
+    font-size: 18px;
     margin-bottom: 16px;
   }
 
   .total-display strong {
-    font-size: 20px;
+    font-size: 26px;
     color: #d32f2f;
     display: block;
+    margin-top: 4px;
   }
 
+  /* 1.5x-es MAGASSÁGÚ DIAGRAM KONTÉNER (220px helyett 330px) */
   .chart-container {
     position: relative;
-    height: 220px;
+    height: 330px;
     width: 100%;
   }
 

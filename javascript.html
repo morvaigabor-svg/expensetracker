@@ -147,12 +147,12 @@ function loadDashboardData(period) {
     .getDashboardStats(period);
 }
 
-/* Oszlopdiagram rajzolása (Chart.js) */
+/* Oszlopdiagram rajzolása 1.5x-es betűméretekkel */
 function renderChart(labels, values) {
   const ctx = document.getElementById("expenseChart").getContext("2d");
 
   if (chartInstance) {
-    chartInstance.destroy(); // Előző diagram törlése az újrarajzolás előtt
+    chartInstance.destroy();
   }
 
   chartInstance = new Chart(ctx, {
@@ -163,7 +163,7 @@ function renderChart(labels, values) {
         label: "Költés (Ft)",
         data: values,
         backgroundColor: "#1976d2",
-        borderRadius: 6
+        borderRadius: 8
       }]
     },
     options: {
@@ -173,9 +173,19 @@ function renderChart(labels, values) {
         legend: { display: false }
       },
       scales: {
+        x: {
+          ticks: {
+            font: {
+              size: 16 // 1.5x-es X tengely betűméret
+            }
+          }
+        },
         y: {
           beginAtZero: true,
           ticks: {
+            font: {
+              size: 16 // 1.5x-es Y tengely betűméret
+            },
             callback: function(value) { return value.toLocaleString("hu-HU") + " Ft"; }
           }
         }

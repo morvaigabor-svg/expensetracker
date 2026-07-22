@@ -13,7 +13,6 @@
   <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/5501/5501375.png">
   <link rel="manifest" href='data:application/manifest+json,{"name":"ExpenseTracker Költségkövető","short_name":"ExpenseTracker","start_url":".","display":"standalone","background_color":"#f3f4f6","theme_color":"#1976d2","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/5501/5501375.png","sizes":"512x512","type":"image/png"}]}'>
 
-  <!-- Chart.js grafikon rajzoló könyvtár -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <?!= include('styles'); ?>
@@ -25,10 +24,13 @@
     
     <!-- 1. KÉPERNYŐ: DASHBOARD -->
     <div id="dashboardScreen">
-      <h1>ExpenseTracker</h1>
+      
+      <!-- DÍSZES FEJLÉC HÁTTÉRKÉPPEL -->
+      <div class="app-header">
+        <h1>ExpenseTracker</h1>
+      </div>
 
       <div class="card">
-        <!-- Időszak szűrő gombok -->
         <div class="filter-group">
           <button class="filter-btn active" data-period="havi">Havi</button>
           <button class="filter-btn" data-period="6havi">6 havi</button>
@@ -40,7 +42,6 @@
           <strong id="totalAmountText">0 Ft</strong>
         </div>
 
-        <!-- Grafikon doboz -->
         <div class="chart-container">
           <canvas id="expenseChart"></canvas>
         </div>
@@ -58,6 +59,14 @@
           <span>Kiadás könyvelése</span>
         </button>
       </div>
+
+      <!-- LÁBLÉC LOGÓKKAL ÉS FELIRATTAL -->
+      <div class="app-footer">
+        <img src="https://cdn-icons-png.flaticon.com/512/5501/5501375.png" alt="Logo Bal" class="footer-logo">
+        <span class="footer-text">Fejlesztés alatt</span>
+        <img src="https://cdn-icons-png.flaticon.com/512/5501/5501375.png" alt="Logo Jobb" class="footer-logo">
+      </div>
+
     </div>
 
     <!-- 2. KÉPERNYŐ: KIADÁS RÖGZÍTŐ ŰRLAP -->
