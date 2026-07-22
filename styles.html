@@ -527,4 +527,197 @@
   display: none !important;
 }
 
+
+/* --- PAYKAL DASHBOARD STÍLUSOK --- */
+/* --- PAYKAL KÉK FEJLÉC --- */
+.paykal-header {
+  height: 128px; /* Dupla magasság */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+  border-radius: 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 12px 24px -6px rgba(37, 99, 235, 0.35);
+}
+
+.paykal-header h1 {
+  font-size: 42px; /* 1.5-szeres betűméret */
+  font-weight: 900;
+  color: #ffffff !important;
+  letter-spacing: -1px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* --- REVOLUT STÍLUSÚ CSOPORT VAGYONA KÁRTYA --- */
+.balance-card {
+  text-align: center;
+  /* Enyhe, lágy kék-fehér átmenetes háttér */
+  background: linear-gradient(180deg, #f0f9ff 0%, #ffffff 100%);
+  border: 1.5px solid #bae6fd; /* Enyhe kék keret */
+  border-radius: 24px;
+  padding: 28px 20px;
+  box-shadow: 0 12px 30px -5px rgba(2, 132, 199, 0.08);
+  margin-bottom: 20px;
+}
+
+.balance-label {
+  font-size: 26px; /* Dupla ekkora méret (13px -> 26px) */
+  font-weight: 800;
+  color: #0369a1; /* Kifejezőbb kék-szürke árnyalat */
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.total-balance-amount {
+  font-size: 56px; /* Látványosan megnövelt óriási összeg */
+  font-weight: 900;
+  color: #0f172a;
+  margin: 8px 0 20px 0;
+  letter-spacing: -2px;
+}
+
+/* CSÚSZKA ÉS DOBOZOK */
+.balance-bar-wrapper {
+  display: flex;
+  height: 14px;
+  width: 100%;
+  background: #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.balance-bar { height: 100%; transition: width 0.4s ease; }
+.cash-bar { background: #16a34a; }
+.bank-bar { background: #2563eb; }
+
+.balance-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.balance-box {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 16px;
+  padding: 16px 12px;
+  text-align: center;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03);
+}
+
+.sub-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.sub-amount {
+  display: block;
+  font-size: 24px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.5px;
+}
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.cash-dot { background: #16a34a; }
+.bank-dot { background: #2563eb; }
+
+.legend-item { display: flex; align-items: center; gap: 6px; }
+.legend-item .dot { width: 10px; height: 10px; border-radius: 50%; }
+.legend-item.cash .dot { background: #16a34a; }
+.legend-item.bank .dot { background: #2563eb; }
+
+.time-filter-group {
+  display: flex;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 12px;
+  gap: 4px;
+  margin-bottom: 16px;
+}
+
+.time-btn {
+  flex: 1;
+  padding: 8px 0;
+  background: transparent;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 700;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 0;
+}
+
+.time-btn.active {
+  background: #ffffff;
+  color: #1e3a8a;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+/* --- ÚJRATERVEZETT LÁBLÉC LOGÓKKAL --- */
+.paykal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 24px 12px;
+  margin-top: 24px;
+  border-top: 1px solid #e2e8f0;
+  gap: 16px;
+}
+
+.footer-logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.footer-logo img {
+  max-height: 60px; /* Megnövelt logó magasság */
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+/* --- FELUGRÓ ABLAK FELSŐ 20%-RA IGAZÍTVA --- */
+.dialog {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(8px);
+  z-index: 99999;
+}
+
+.dialog.hidden { display: none !important; }
+
+.dialog-content {
+  position: fixed;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ffffff;
+  padding: 32px;
+  border-radius: 24px;
+  width: 90%;
+  max-width: 640px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+  margin: 0 !important;
+  max-height: 75vh;
+  overflow-y: auto;
+}
+
+
 </style>

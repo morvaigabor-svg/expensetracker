@@ -559,4 +559,109 @@ function resetTransferForm() {
   document.getElementById("transferComment").value = "";
   if (document.getElementById("transferType")) document.getElementById("transferType").selectedIndex = 0;
 }
+
+
+
+
+var paykalChart = null;
+
+  document.addEventListener('DOMContentLoaded', function() {
+    loadPayKalDashboard('1H');
+  });
+
+  function loadPayKalDashboard(period) {
+    google.script.run
+      .withSuccessHandler(renderPayKalDashboardUI)
+      .withFailureHandler(function(err) {
+        console.error("Hiba a Dashboard adatok betöltésekor:", err);
+      })
+      .getPayKalDashboardData(period);
+  }
+
+  function renderPayKalDashboardUI(data) {
+    document.getElementById('totalBalanceDisplay').innerText = formatHUF(data.totalBalance);
+    document.getElementById('cashBalanceDisplay').innerText = formatHUF(data.cashBalance);
+    document.getElementById('bankBalanceDisplay').innerText = formatHUF(data.bankBalance);
+
+    var total = data.totalBalance;
+    var cashPercent = total > 0 ? Math.round((data.cashBalance / total) * 100) : 50;
+
+    document.getElementById('cashBar').style.width = cashPercent + '%';
+    document.getElementById('bankBar').style.width = (100 - cashPercent) + '%';
+
+    renderLineChart(data.labels, data.values);
+  }
+
+  function changeTimeFilter(period) {
+    var buttons = document.querySelectorAll('.time-btn');
+    buttons.forEach(function(btn) { btn.classList.remove('active'); });
+
+    if (event && event.currentTarget) {
+      event.currentTarget.classList.add('active');
+    }
+
+    loadPayKalDashboard(period);
+  }
+
+  function renderLineChart(labels, values) {
+    var canvas = document.getElementById('expenseChart');
+    if (!canvas) return;
+
+    var ctx = canvas.getContext('2d');
+
+    if (paykalChart) {
+      paykalChart.destroy();
+    }
+
+    var gradient = ctx.createLinearGradient(0, 0, 0, 260);
+    gradient.addColorStop(0, 'rgba(37, 99, 235, 0.25)');
+    gradient.addColorStop(1, 'rgba(37, 99, 235, 0.0)');
+
+    paykalChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Csoport vagyona',
+          data: values,
+          borderColor: '#2563eb',
+          borderWidth: 3,
+          fill: true,
+          backgroundColor: gradient,
+          tension: 0.35,
+          pointRadius: 4,
+          pointBackgroundColor: '#2563eb'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return ' ' + context.raw.toLocaleString('hu-HU') + ' Ft';
+              }
+            }
+          }
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#64748b' } },
+          y: {
+            grid: { color: '#f1f5f9' },
+            ticks: {
+              font: { size: 10 },
+              color: '#64748b',
+              callback: function(v) { return v.toLocaleString('hu-HU') + ' Ft'; }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  function formatHUF(amount) {
+    return Number(amount || 0).toLocaleString('hu-HU') + ' Ft';
+  }
 </script>

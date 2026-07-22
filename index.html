@@ -16,56 +16,91 @@
 
   <div class="container">
     
-    <!-- 1. KÉPERNYŐ: DASHBOARD -->
-    <div id="dashboardScreen">
-      
-      <div class="app-header">
-        <h1>ExpenseTracker</h1>
-      </div>
+     <!-- 1. KÉPERNYŐ: DASHBOARD -->
+<div id="dashboardView">
+  
+  <!-- 1. DUPLA MAGAS KÉK FEJLÉC 1.5X BETŰMÉRETTEL -->
+  <header class="paykal-header">
+    <h1>PayKal</h1>
+  </header>
 
-      <div class="card">
-        <div class="filter-group">
-          <button class="filter-btn active" data-period="havi">Havi</button>
-          <button class="filter-btn" data-period="6havi">6 havi</button>
-          <button class="filter-btn" data-period="eves">Éves</button>
+  <main class="dashboard-content">
+    
+    <!-- 2. "CSOPORT VAGYONA" KÁRTYA ENYHE HÁTTÉRRLE, DUPLA FELIRATTAL ÉS NAGYOBB ÖSSZEGGEL -->
+    <div class="card balance-card">
+      <span class="balance-label">Csoport vagyona</span>
+      <h2 id="totalBalanceDisplay" class="total-balance-amount">0 Ft</h2>
+
+      <!-- KP / SZÁMLA CSÚSZKA -->
+      <div class="balance-slider-container">
+        <div class="balance-bar-wrapper">
+          <div id="cashBar" class="balance-bar cash-bar" style="width: 50%;"></div>
+          <div id="bankBar" class="balance-bar bank-bar" style="width: 50%;"></div>
         </div>
+      </div>
 
-        <div class="total-display">
-          <span>Összes költés:</span>
-          <strong id="totalAmountText">0 Ft</strong>
+      <!-- KÉSZPÉNZ ÉS SZÁMLA EGYENLEG KÁRTYÁK -->
+      <div class="balance-grid">
+        <div class="balance-box cash-box">
+          <span class="sub-label"><span class="dot cash-dot"></span> Készpénz</span>
+          <strong id="cashBalanceDisplay" class="sub-amount">0 Ft</strong>
         </div>
-
-        <div class="chart-container">
-          <canvas id="expenseChart"></canvas>
+        <div class="balance-box bank-box">
+          <span class="sub-label"><span class="dot bank-dot"></span> Számla</span>
+          <strong id="bankBalanceDisplay" class="sub-amount">0 Ft</strong>
         </div>
       </div>
-
-      <!-- FŐ AKCIÓ GOMBOK -->
-      <div class="action-buttons-grid">
-        <button id="addIncomeBtn" class="action-btn btn-income">
-          <span>💰</span>
-          <span>Bevétel könyvelése</span>
-        </button>
-        
-        <button id="addExpenseBtn" class="action-btn btn-expense">
-          <span>➕</span>
-          <span>Kiadás könyvelése</span>
-        </button>
-      </div>
-
-      <!-- HARMADIK GOMB: PÉNZMOZGÁS -->
-      <div class="full-width-action">
-        <button id="addTransferBtn" class="action-btn btn-transfer">
-          <span>🔄</span>
-          <span>Készpénz mozgatása (Bank ↔ KP)</span>
-        </button>
-      </div>
-
-      <div class="app-footer">
-        <span class="footer-text">Fejlesztés alatt</span>
-      </div>
-
     </div>
+
+    <!-- REVOLUT STÍLUSÚ VONALDIAGRAM KÁRTYA -->
+    <div class="card chart-card">
+      <div class="time-filter-group">
+        <button type="button" class="time-btn active" onclick="changeTimeFilter('1H')">1 H</button>
+        <button type="button" class="time-btn" onclick="changeTimeFilter('3H')">3 H</button>
+        <button type="button" class="time-btn" onclick="changeTimeFilter('6H')">6 H</button>
+        <button type="button" class="time-btn" onclick="changeTimeFilter('1E')">1 É</button>
+        <button type="button" class="time-btn" onclick="changeTimeFilter('2E')">2 É</button>
+        <button type="button" class="time-btn" onclick="changeTimeFilter('O')">Ö</button>
+      </div>
+
+      <div class="chart-container">
+        <canvas id="expenseChart"></canvas>
+      </div>
+    </div>
+
+    <!-- AKCIÓ GOMBOK -->
+    <div class="action-buttons-grid">
+      <button type="button" class="action-btn btn-income" onclick="showView('incomeFormView')">
+        <span class="btn-icon">💰</span>
+        <span>Bevétel hozzáadása</span>
+      </button>
+
+      <button type="button" class="action-btn btn-expense" onclick="showView('expenseFormView')">
+        <span class="btn-icon">➖</span>
+        <span>Kiadás hozzáadása</span>
+      </button>
+    </div>
+
+    <button type="button" class="action-btn btn-transfer" onclick="showView('transferFormView')">
+      <span class="btn-icon">🔄</span>
+      <span>Készpénz mozgás rögzítése</span>
+    </button>
+
+  </main>
+
+  <!-- 3. LÁBLÉC KÉPEKRE ELŐKÉSZÍTVE -->
+  <footer class="paykal-footer">
+    <div class="footer-logo">
+      <!-- Cseréld ki a linket a Google Drive ID-dra vagy Base64 kódra -->
+      <img src="1g5YTlcWbdOP-0b6kvwoCt8CrOCkyKK57" alt="Piarista Rend Magyar Tartománya" />
+    </div>
+    <div class="footer-logo">
+      <!-- Cseréld ki a linket a Google Drive ID-dra vagy Base64 kódra -->
+      <img src="1qQJD5SY7IO_6m2CfLmT1z8QNEe_3ZFo6" alt="Kalazancius Mozgalom" />
+    </div>
+  </footer>
+
+</div>
 
     <!-- 2. KÉPERNYŐ: KIADÁS RÖGZÍTŐ -->
     <div id="expenseScreen" class="hidden">

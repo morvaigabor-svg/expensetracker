@@ -1,75 +1,98 @@
 /**
- * Dashboard statisztikák kiszámítása a Sheetből
+ * PayKal Dashboard Adatkezelő
+ * Lekéri az N2, N4, N6 cellákból az aktuális egyenlegeket,
+ * és az A-H oszlopokból felépíti az idősoros vonaldiagramot.
  */
-function getDashboardStatsData(period = "havi") {
-  try {
-    const ss = SpreadsheetApp.openById(CONFIG.SHEET_ID);
-    const sheet = ss.getSheetByName(APP.SHEETS.EXPENSES);
+function getPayKalDashboardData(timeFilter) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var balanceSheet = ss.getSheetByName('Egyenleg');
 
-    if (!sheet) {
-      return { labels: [], values: [], totalAmount: 0 };
-    }
-
-    const data = sheet.getDataRange().getValues();
-    if (data.length <= 1) {
-      return { labels: [], values: [], totalAmount: 0 };
-    }
-
-    const today = new Date();
-    const currentYear = today.getFullYear();
-    const currentMonth = today.getMonth();
-
-    const totalsByCostCenter = {};
-    let totalAmount = 0;
-
-    // A 2. sortól futunk végig a táblázaton (1. sor a fejléc)
-    for (let i = 1; i < data.length; i++) {
-      const row = data[i];
-      const rawDate = row[0];       // A oszlop: Dátum
-      const costCenter = row[1];    // B oszlop: Költséghely
-      const amount = Number(row[2]);// C oszlop: Összeg
-
-      if (!rawDate || !costCenter || isNaN(amount)) continue;
-
-      const expenseDate = new Date(rawDate);
-      let isIncluded = false;
-
-      if (period === "havi") {
-        // Aktuális naptári hónap
-        if (expenseDate.getFullYear() === currentYear && expenseDate.getMonth() === currentMonth) {
-          isIncluded = true;
-        }
-      } else if (period === "6havi") {
-        // Utolsó 6 hónap
-        const sixMonthsAgo = new Date();
-        sixMonthsAgo.setMonth(today.getMonth() - 6);
-        if (expenseDate >= sixMonthsAgo && expenseDate <= today) {
-          isIncluded = true;
-        }
-      } else if (period === "eves") {
-        // Aktuális naptári év
-        if (expenseDate.getFullYear() === currentYear) {
-          isIncluded = true;
-        }
-      }
-
-      if (isIncluded) {
-        totalsByCostCenter[costCenter] = (totalsByCostCenter[costCenter] || 0) + amount;
-        totalAmount += amount;
-      }
-    }
-
-    const labels = Object.keys(totalsByCostCenter);
-    const values = labels.map(label => totalsByCostCenter[label]);
-
-    return {
-      labels: labels,
-      values: values,
-      totalAmount: totalAmount
-    };
-
-  } catch (error) {
-    writeLog("ERROR", "Dashboard", error.message);
-    throw error;
+  if (!balanceSheet) {
+    return { totalBalance: 0, cashBalance: 0, bankBalance: 0, labels: [], values: [] };
   }
+
+  // 1. AKTUÁLIS EGYENLEGEK KÖZVETLEN LEKÉRÉSE AZ N CELLÁKBÓL
+  var totalBalance = Number(balanceSheet.getRange('N2').getValue()) || 0;
+  var cashBalance  = Number(balanceSheet.getRange('N4').getValue()) || 0;
+  var bankBalance  = Number(balanceSheet.getRange('N6').getValue()) || 0;
+
+  // 2. IDŐSOROS DIAGRAM ADATOK LEKÉRÉSE (A: Dátum, H: Egyenleg)
+  var lastRow = balanceSheet.getLastRow();
+  if (lastRow < 2) {
+    return {
+      totalBalance: totalBalance,
+      cashBalance: cashBalance,
+      bankBalance: bankBalance,
+      labels: [],
+      values: []
+    };
+  }
+
+  // A2-től H oszlopig lekérjük az adatokat (A = 0. index, H = 7. index)
+  var rawData = balanceSheet.getRange(2, 1, lastRow - 1, 8).getValues();
+
+  // Szűrő kezdődátumának kiszámítása
+  var now = new Date();
+  var startDate = new Date();
+
+  switch (timeFilter) {
+    case '1H': startDate.setMonth(now.getMonth() - 1); break;
+    case '3H': startDate.setMonth(now.getMonth() - 3); break;
+    case '6H': startDate.setMonth(now.getMonth() - 6); break;
+    case '1E': startDate.setFullYear(now.getFullYear() - 1); break;
+    case '2E': startDate.setFullYear(now.getFullYear() - 2); break;
+    case 'O':  startDate = new Date(2000, 0, 1); break;
+    default:   startDate.setMonth(now.getMonth() - 1); break;
+  }
+
+  var seenDates = {};
+  var filteredPoints = [];
+
+  // Mivel a legfrissebb van legfelül (2. sor), fentről lefelé haladunk.
+  // Az első előforduló dátum lesz az aznapi legfrissebb állapot!
+  for (var i = 0; i < rawData.length; i++) {
+    var rawDate = rawData[i][0];
+    var amount  = Number(rawData[i][7]); // H oszlop (8. oszlop = index 7)
+
+    if (!rawDate || !(rawDate instanceof Date) || isNaN(rawDate.getTime())) {
+      continue;
+    }
+
+    // Szűrés a kiválasztott időszakra
+    if (rawDate >= startDate && rawDate <= now) {
+      // Dátum kulcs (ÉÉÉÉ-HH-NN) az azonos napok kiszűrésére
+      var dateKey = Utilities.formatDate(rawDate, Session.getScriptTimeZone(), "yyyy-MM-dd");
+
+      // Ha még nem dolgoztuk fel ezt a napot, ez a legfrissebb aznapi bejegyzés
+      if (!seenDates[dateKey]) {
+        seenDates[dateKey] = true;
+        
+        var displayLabel = Utilities.formatDate(rawDate, Session.getScriptTimeZone(), "MM.dd.");
+        
+        filteredPoints.push({
+          label: displayLabel,
+          value: isNaN(amount) ? 0 : amount
+        });
+      }
+    }
+  }
+
+  // Mivel fentről (legfrissebb) haladtunk lefelé (legrégebbi), megfordítjuk az időrendet a diagramhoz
+  filteredPoints.reverse();
+
+  var labels = [];
+  var values = [];
+
+  for (var j = 0; j < filteredPoints.length; j++) {
+    labels.push(filteredPoints[j].label);
+    values.push(filteredPoints[j].value);
+  }
+
+  return {
+    totalBalance: totalBalance,
+    cashBalance: cashBalance,
+    bankBalance: bankBalance,
+    labels: labels,
+    values: values
+  };
 }
