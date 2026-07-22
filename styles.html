@@ -1,44 +1,75 @@
 <style>
+  /* --- DESIGN SYSTEM & CSS VARIABLES --- */
+  :root {
+    --bg-body: #f8fafc;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --card-bg: #ffffff;
+    --card-border: #e2e8f0;
+    --card-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.05), 0 8px 10px -6px rgba(15, 23, 42, 0.03);
+    
+    --primary: #2563eb;
+    --primary-hover: #1d4ed8;
+    --primary-light: #eff6ff;
+
+    --expense: #dc2626;
+    --expense-hover: #b91c1c;
+
+    --income: #16a34a;
+    --income-hover: #15803d;
+    --income-light: #f0fdf4;
+
+    --transfer: #0284c7;
+    --transfer-hover: #0369a1;
+
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+
+    --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
   * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-tap-highlight-color: transparent;
   }
 
   body {
-    background-color: #f3f4f6;
-    color: #333;
+    background-color: var(--bg-body);
+    color: var(--text-main);
     padding: 16px;
+    line-height: 1.5;
   }
 
-  /* 1.5x-es szélességre növelt fő konténer (480px helyett 720px) */
   .container {
     max-width: 720px;
     margin: 0 auto;
   }
 
-  /* --- FEJLÉC HÁTTÉRKÉPPEL (70% opacity) --- */
+  /* --- FEJLÉC (DASHBOARD HEADER) --- */
   .app-header {
     position: relative;
-    padding: 24px 16px;
+    padding: 28px 20px;
     text-align: center;
-    border-radius: 16px;
+    border-radius: var(--radius-xl);
     overflow: hidden;
-    margin-bottom: 16px;
-    background-color: #1976d2; /* Tartalék szín, ha nincs kép */
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+    box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.3);
   }
 
-  /* Külön réteg a háttérképnek az áttetszőséghez */
   .app-header::before {
     content: "";
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
-    background-image: url('HA_IDE_TESZED_A_KEPET.jpg'); /* Cseréld ki a saját képed URL-jére */
+    background-image: url('HA_IDE_TESZED_A_KEPET.jpg');
     background-size: cover;
     background-position: center;
-    opacity: 0.7; /* 70% opacity */
+    opacity: 0.25;
     z-index: 1;
   }
 
@@ -46,84 +77,223 @@
     position: relative;
     z-index: 2;
     color: #ffffff;
-    font-size: 28px;
+    font-size: 26px;
     font-weight: 800;
-    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
-    letter-spacing: 1px;
+    letter-spacing: -0.5px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   }
 
-  /* --- LÁBLÉC KÉT LOGÓVAL ÉS KÖZÉPSŐ SZÖVEGGEL --- */
-  .app-footer {
+  /* --- KÁRTYÁK (CARDS) --- */
+  .card {
+    background: var(--card-bg);
+    padding: 24px;
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--card-border);
+    box-shadow: var(--card-shadow);
+    margin-bottom: 20px;
+    transition: var(--transition);
+  }
+
+  .card h2 {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--text-main);
+    letter-spacing: -0.3px;
+  }
+
+  /* --- SZŰRŐ (SEGMENTED CONTROL) --- */
+  .filter-group {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 16px;
-    background: white;
-    border-radius: 14px;
-    margin-top: 16px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    background: #f1f5f9;
+    padding: 4px;
+    border-radius: var(--radius-md);
+    gap: 4px;
+    margin-bottom: 20px;
   }
 
-  .footer-logo {
-    width: 40px;
-    height: 40px;
-    object-fit: contain;
-  }
-
-  .footer-text {
+  .filter-btn {
+    flex: 1;
+    padding: 10px;
+    background: transparent;
+    color: var(--text-muted);
     font-size: 14px;
     font-weight: 600;
-    color: #757575;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    margin-top: 0;
+    transition: var(--transition);
+  }
+
+  .filter-btn.active {
+    background: #ffffff;
+    color: var(--primary);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  }
+
+  /* --- ÖSSZESÍTŐ KIJELZŐ --- */
+  .total-display {
+    text-align: center;
+    padding: 16px;
+    background: var(--primary-light);
+    border-radius: var(--radius-lg);
+    margin-bottom: 20px;
+  }
+
+  .total-display span {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
 
-  /* --- KÁRTYA / TÁBLÁZAT --- */
-  .card {
-    background: white;
-    padding: 24px;
-    border-radius: 16px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    margin-bottom: 16px;
+  .total-display strong {
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--expense);
+    display: block;
+    margin-top: 2px;
+    letter-spacing: -1px;
   }
 
+  /* --- DIAGRAM KONTÉNER --- */
+  .chart-container {
+    position: relative;
+    height: 320px;
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  /* --- FŐ AKCIÓ GOMBOK GRID --- */
+  .action-buttons-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 16px;
+  }
+
+  .action-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 22px 16px;
+    border-radius: var(--radius-xl);
+    font-size: 15px;
+    font-weight: 700;
+    border: none;
+    margin-top: 0;
+    cursor: pointer;
+    transition: var(--transition);
+    min-height: 110px;
+  }
+
+  .action-btn span:first-child {
+    font-size: 32px;
+    margin-bottom: 8px;
+  }
+
+  .action-btn:active {
+    transform: scale(0.98);
+  }
+
+  /* Gomb színek */
+  .btn-income {
+    background: var(--income);
+    color: white;
+    box-shadow: 0 8px 16px -4px rgba(22, 163, 74, 0.3);
+  }
+  .btn-income:hover { background: var(--income-hover); }
+
+  .btn-expense {
+    background: var(--expense);
+    color: white;
+    box-shadow: 0 8px 16px -4px rgba(220, 38, 38, 0.3);
+  }
+  .btn-expense:hover { background: var(--expense-hover); }
+
+  .btn-transfer {
+    background: var(--transfer);
+    color: white;
+    box-shadow: 0 8px 16px -4px rgba(2, 132, 199, 0.3);
+    width: 100%;
+    margin-top: 12px;
+    flex-direction: row;
+    gap: 12px;
+    padding: 16px;
+    min-height: auto;
+  }
+  .btn-transfer span:first-child {
+    font-size: 22px;
+    margin-bottom: 0;
+  }
+  .btn-transfer:hover { background: var(--transfer-hover); }
+
+  .full-width-action {
+    margin-top: 4px;
+  }
+
+  .btn-back {
+    background: #64748b;
+    color: white;
+    margin-bottom: 16px;
+    margin-top: 0;
+    padding: 12px 18px;
+    font-size: 14px;
+    border-radius: var(--radius-md);
+  }
+
+  /* --- ŰRLAP ELEMEK (FORMS) --- */
   label {
     display: block;
-    margin-top: 12px;
-    margin-bottom: 4px;
+    margin-top: 16px;
+    margin-bottom: 6px;
     font-weight: 600;
     font-size: 14px;
-    color: #444;
+    color: #334155;
   }
 
   input, select, textarea {
     width: 100%;
-    padding: 12px;
-    border: 1px solid #ccc;
-    border-radius: 10px;
+    padding: 14px 16px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: var(--radius-md);
     font-size: 16px;
+    color: var(--text-main);
     outline: none;
+    transition: var(--transition);
+  }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
   }
 
   textarea {
     resize: vertical;
-    height: 70px;
+    min-height: 80px;
   }
 
+  /* BLOKK FELTÖLTŐ DOBOZ */
   .upload-box {
-    border: 2px dashed #1976d2;
-    padding: 16px;
+    border: 2px dashed #93c5fd;
+    padding: 20px;
     text-align: center;
-    border-radius: 10px;
-    background: #e3f2fd;
+    border-radius: var(--radius-lg);
+    background: var(--primary-light);
     margin-top: 8px;
+    transition: var(--transition);
   }
 
   .upload-box label {
-    color: #1976d2;
+    color: var(--primary);
     cursor: pointer;
     margin: 0;
-    font-size: 16px;
+    font-size: 15px;
+    font-weight: 700;
   }
 
   input[type="file"] {
@@ -132,234 +302,229 @@
 
   button {
     width: 100%;
-    padding: 14px;
-    background: #1976d2;
+    padding: 16px;
+    background: var(--primary);
     color: white;
     border: none;
-    border-radius: 10px;
+    border-radius: var(--radius-md);
     font-size: 16px;
-    font-weight: bold;
-    margin-top: 16px;
+    font-weight: 700;
+    margin-top: 20px;
     cursor: pointer;
+    transition: var(--transition);
   }
 
-  /* --- 1.5x-esre MÁSKÁLÁZOTT FŐ GOMBOK --- */
-  .action-buttons-grid {
-    display: flex;
-    gap: 16px;
-    margin-top: 16px;
+  button:active {
+    transform: scale(0.99);
   }
 
-  .action-btn {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 26px 14px; /* 1.5x padding */
-    border-radius: 16px;
-    font-size: 18px;    /* 1.5x betűméret (12px-14px helyett) */
-    font-weight: bold;
-    margin-top: 0;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-    min-height: 120px;  /* 1.5x magasság (80px helyett 120px) */
-  }
-
-  .action-btn span:first-child {
-    font-size: 33px;    /* 1.5x ikon méret (22px helyett 33px) */
-    margin-bottom: 8px;
-  }
-
-  .btn-income {
-    background: #e0e0e0;
-    color: #888;
-    cursor: not-allowed;
-    border: 1px solid #ccc;
-  }
-
-  .btn-expense {
-    background: #d32f2f;
-    color: white;
-  }
-
-  .btn-expense:active {
-    background: #b71c1c;
-  }
-
-  .btn-back {
-    background: #757575;
-    margin-bottom: 12px;
-    margin-top: 0;
-  }
-
-  .filter-group {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 16px;
-  }
-
-  .filter-btn {
-    flex: 1;
-    padding: 10px;
-    background: #e0e0e0;
-    color: #444;
-    font-size: 15px;
-    margin-top: 0;
-    border-radius: 8px;
-  }
-
-  .filter-btn.active {
-    background: #1976d2;
-    color: white;
-  }
-
-  .total-display {
-    text-align: center;
-    font-size: 18px;
-    margin-bottom: 16px;
-  }
-
-  .total-display strong {
-    font-size: 26px;
-    color: #d32f2f;
-    display: block;
-    margin-top: 4px;
-  }
-
-  /* 1.5x-es MAGASSÁGÚ DIAGRAM KONTÉNER (220px helyett 330px) */
-  .chart-container {
-    position: relative;
-    height: 330px;
-    width: 100%;
-  }
-
-  .hidden {
-    display: none !important;
-  }
-
-  /* Dialogusok */
-  .dialog {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-  }
-
-  .dialog-content {
-    background: white;
-    padding: 20px;
-    border-radius: 12px;
-    width: 90%;
-    max-width: 400px;
-  }
-
-  .status-progress {
-    margin: 12px 0;
-    padding: 10px;
-    background: #fff3cd;
-    color: #856404;
-    border-radius: 8px;
-    font-weight: bold;
-    text-align: center;
-  }
-
-  #noReceiptBackButton { background: #757575; color: white; }
-  #noReceiptContinueButton { background: #d32f2f; color: white; }
-
- /* Aktív Zöld Bevétel Gomb */
-  .btn-income {
-    background: #2e7d32;
-    color: white;
-    cursor: pointer;
-  }
-
-  .btn-income:active {
-    background: #1b5e20;
-  }
-
-  /* Egyedi Lenyíló Mező a Nevekhez */
+  /* --- CUSTOM BEFIZETŐ LENYÍLÓ PANEL --- */
   .custom-select-trigger {
     display: flex;
     justify-content: space-between;
     align-items: center;
     background: #ffffff;
-    border: 1px solid #ccc;
-    padding: 12px;
-    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    padding: 14px 16px;
+    border-radius: var(--radius-md);
     font-size: 16px;
+    font-weight: 500;
     cursor: pointer;
     user-select: none;
-    margin-top: 4px;
+    margin-top: 6px;
+    transition: var(--transition);
   }
 
   .custom-select-trigger:active {
-    background: #f5f5f5;
+    background: #f8fafc;
   }
 
-  /* Összecsukható Panel */
   .dropdown-panel {
-    border: 1px solid #ccc;
+    border: 1px solid #cbd5e1;
     border-top: none;
-    border-radius: 0 0 8px 8px;
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
     background: #ffffff;
     padding: 8px 12px;
-    max-height: 220px;
+    max-height: 240px;
     overflow-y: auto;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
   }
 
   .checkbox-item {
     display: flex;
     align-items: center;
-    padding: 10px 0;
-    border-bottom: 1px solid #eee;
-    font-size: 16px;
+    padding: 10px 6px;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 15px;
     cursor: pointer;
   }
 
-  .checkbox-item:last-child {
-    border-bottom: none;
-  }
-
   .checkbox-item input[type="checkbox"] {
-    width: 22px;
-    height: 22px;
+    width: 20px;
+    height: 20px;
     margin-right: 12px;
-    accent-color: #2e7d32;
+    accent-color: var(--income);
     cursor: pointer;
   }
 
   .other-item {
-    font-weight: bold;
-    color: #2e7d32;
-    background: #f1f8e9;
-    padding: 8px;
-    border-radius: 6px;
-    margin-top: 6px;
+    font-weight: 700;
+    color: var(--income);
+    background: var(--income-light);
+    padding: 10px;
+    border-radius: var(--radius-sm);
+    margin-top: 8px;
   }
 
-  /* Narancssárga / Kék Pénzmozgás gomb */
-  .btn-transfer {
-    background: #0288d1;
-    color: white;
-    cursor: pointer;
-    margin-top: 10px;
-    width: 100%;
-  }
+ /* --- MODAL DIALOGS (GOLYÓÁLLÓ KÉPERNYŐ-KÖZÉP IGAZÍTÁS) --- */
+.dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 99999;
+}
 
-  .btn-transfer:active {
-    background: #01579b;
-  }
+/* Rejtés kikényszerítése */
+.dialog.hidden {
+  display: none !important;
+}
 
-  /* Különálló gomb sor a harmadik gombnak */
-  .full-width-action {
-    margin-top: 10px;
+.dialog-content {
+  position: fixed;
+  top: 20%; /* PONTOSAN A KÉPERNYŐ FELSŐ 20%-ÁNÁL KEZDŐDIK */
+  left: 50%;
+  transform: translateX(-50%); /* CSAK VÍZSZINTESEN KÖZÉPRE IGAZÍT */
+  background: #ffffff;
+  padding: 32px;
+  border-radius: 24px;
+  width: 90%;
+  max-width: 640px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+  animation: modalTopPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  margin: 0 !important;
+  box-sizing: border-box;
+  max-height: 75vh;
+  overflow-y: auto;
+}
+
+/* Animáció felülről lefelé lágyan */
+@keyframes modalTopPop {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -15px) scale(0.96);
   }
-  
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+}
+
+.dialog-content h2 {
+  font-size: 24px;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 16px;
+  text-align: center;
+  letter-spacing: -0.5px;
+}
+
+.dialog-desc {
+  font-size: 18px;
+  color: #475569;
+  margin-bottom: 24px;
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* ÖSSZEGZŐ DOBOZ (SUMMARY BOX) */
+.summary-box {
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 20px 24px;
+  margin: 20px 0;
+  font-size: 17px;
+  color: #1e293b;
+  line-height: 1.8;
+}
+
+.summary-box p {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  border-bottom: 1px dashed #cbd5e1;
+  padding-bottom: 8px;
+}
+
+.summary-box p:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.summary-box strong {
+  color: #0f172a;
+  font-weight: 700;
+}
+
+/* ÉLŐ FOLYAMATJELZŐ DOBOZ */
+.status-progress {
+  margin: 16px 0;
+  padding: 16px;
+  background: #fef3c7;
+  color: #92400e;
+  border-radius: 14px;
+  font-weight: 700;
+  font-size: 16px;
+  text-align: center;
+}
+
+/* GOMBOK ELRENDEZÉSE */
+.dialog-actions {
+  display: flex;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.dialog-actions.vertical {
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dialog-actions button {
+  flex: 1;
+  margin-top: 0;
+  padding: 18px 20px;
+  font-size: 18px;
+  font-weight: 800;
+  border-radius: 16px;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+  min-height: 56px;
+}
+
+.dialog-actions button:active {
+  transform: scale(0.97);
+}
+
+.btn-secondary { background: #cbd5e1 !important; color: #334155 !important; }
+.btn-primary { background: #2563eb !important; color: #ffffff !important; }
+.btn-confirm-expense { background: #dc2626 !important; color: #ffffff !important; }
+.btn-confirm-income { background: #16a34a !important; color: #ffffff !important; }
+.btn-danger { background: #dc2626 !important; color: #ffffff !important; }
+.text-center { text-align: center; }
+
+/* --- REJTÉS KIKÉNYSZERÍTÉSE --- */
+.hidden,
+.dialog.hidden {
+  display: none !important;
+}
+
 </style>
