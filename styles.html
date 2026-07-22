@@ -152,36 +152,55 @@
     border-radius: var(--radius-md);
   }
 
-  label {
-    display: block;
-    margin-top: 21px;
-    margin-bottom: 8px;
-    font-weight: 600;
-    font-size: 18px;
-    color: #334155;
-  }
+ label {
+  display: block;
+  margin-top: 24px;
+  margin-bottom: 8px;
+  font-weight: 700;
+  font-size: 24px; /* <--- CÍMKÉK BETŰMÉRETE (18px volt) */
+  color: #334155;
+}
 
-  input, select, textarea {
-    width: 100%;
-    padding: 18px 21px;
-    background: #ffffff;
-    border: 1px solid #cbd5e1;
-    border-radius: var(--radius-md);
-    font-size: 20px;
-    color: var(--text-main);
-    outline: none;
-    transition: var(--transition);
-  }
+input:not([type="checkbox"]):not([type="file"]), 
+select, 
+.custom-select-trigger {
+  width: 100%;
+  height: 44px;                  /* Finom, kompakt magasság (nem batár) */
+  padding: 0 12px;               /* Belső margó a szöveg körül */
+  font-size: 15px;               /* Visszafogott, normál betűméret */
+  font-weight: 400;              /* Letisztult, nem túl vastag betű */
+  color: #1e293b;                /* Jól olvasható sötétszürke */
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;     /* Vékony, lágy szürke keret */
+  border-radius: 8px;            /* Elegáns, nem túltolt kerekítés */
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  margin-top: 0 !important;      /* Eltünteti az esetleges eltolásokat */
+}
 
-  input:focus, select:focus, textarea:focus {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
-  }
 
-  textarea {
-    resize: vertical;
-    min-height: 104px;
-  }
+input:focus, 
+select:focus, 
+textarea:focus, 
+.custom-select-trigger:focus {
+  border-color: #3b82f6;                          /* Diszkrét kék keret */
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12); /* Finom kék derengés */
+}
+
+textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 10px 12px;
+  font-size: 15px;
+  font-weight: 400;
+  color: #1e293b;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  outline: none;
+  box-sizing: border-box;
+  resize: vertical;
+}
 
   .upload-box {
     border: 2px dashed #93c5fd;
@@ -235,42 +254,31 @@
     transition: var(--transition);
   }
 
-  .dropdown-panel {
-    border: 1px solid #cbd5e1;
-    border-top: none;
-    border-radius: 0 0 var(--radius-md) var(--radius-md);
-    background: #ffffff;
-    padding: 10px 16px;
-    max-height: 312px;
-    overflow-y: auto;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  }
+.dropdown-panel {
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
 
-  .checkbox-item {
-    display: flex;
-    align-items: center;
-    padding: 13px 8px;
-    border-bottom: 1px solid #f1f5f9;
-    font-size: 19px;
-    cursor: pointer;
-  }
+.checkbox-item {
+  padding: 8px 12px;
+  font-size: 14px;
+}
 
-  .checkbox-item input[type="checkbox"] {
-    width: 26px;
-    height: 26px;
-    margin-right: 16px;
-    accent-color: var(--income);
-    cursor: pointer;
-  }
+.checkbox-item input[type="checkbox"] {
+  width: 28px;
+  height: 28px;
+  margin-right: 16px;
+  accent-color: var(--income);
+  cursor: pointer;
+}
 
-  .other-item {
-    font-weight: 700;
-    color: var(--income);
-    background: var(--income-light);
-    padding: 13px;
-    border-radius: var(--radius-sm);
-    margin-top: 10px;
-  }
+/* Egyéb név beviteli mező finomhangolása a lenyíló panelben */
+#customPayerInput {
+  margin-top: 4px;
+  font-size: 16px;
+  padding: 10px 12px;
+}
 
   .dialog {
     position: fixed;
@@ -621,6 +629,20 @@
   .footer-logo:last-child img {
     max-height: 120px;
   }
+}
+
+
+/* 1. A gyári select ÉS az egyedi Befizető mező betűtípusának és méretének szinkronizálása */
+select, 
+.custom-select-trigger {
+  font-family: inherit !important; /* Átveszi az oldal saját betűtípusát */
+  font-size: 15px !important;      /* Pontosan 15px-es betűméret mindkét mezőben */
+  font-weight: 400 !important;     /* Normál, azonos betűvastagság */
+  line-height: 1.5;                /* Egyforma sormagasság */
+  
+  height: 44px;                    /* Egyforma mezőmagasság */
+  padding: 0 12px;                 /* Egyforma belső margó */
+  box-sizing: border-box;
 }
 
 

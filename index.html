@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#1976d2">
   <title>ExpenseTracker</title>
 
@@ -21,8 +21,7 @@
       
       <header class="paykal-header">
         <h1>PayKal</h1>
-        <div class="subtitle">Wallet of Calasanz</div>
-        
+        <div class="subtitle">A wallet for the Children</div>
       </header>
 
       <main class="dashboard-content">
@@ -167,11 +166,13 @@
               <p style="color: #888; font-size: 14px; text-align: center;">Nevek betöltése...</p>
             </div>
 
-            <div class="checkbox-item other-item">
+            <!-- Teljesen azonos stílus a többi névvel -->
+            <label class="checkbox-item">
               <input type="checkbox" id="cb_other_payer">
-              <label for="cb_other_payer">✍ Egyéb (manuális név)</label>
-            </div>
+              Egyéb (manuális név)
+            </label>
             
+            <!-- Lenyíló beviteli mező -->
             <div id="customPayerContainer" class="hidden" style="margin-top: 8px;">
               <input type="text" id="customPayerInput" placeholder="Írd be a befizető nevét">
             </div>
