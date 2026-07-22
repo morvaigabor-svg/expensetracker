@@ -159,3 +159,69 @@ function saveIncomeData(incomeData) {
     throw error;
   }
 }
+
+/**
+ * Pénzmozgások (átvezetések) mentési szolgáltatása
+ */
+function saveTransferData(transferData) {
+  try {
+    const ss = SpreadsheetApp.openById(CONFIG.SHEET_ID);
+    const sheetName = "Pénzmozgások";
+    let sheet = ss.getSheetByName(sheetName);
+
+    // Ha még nem létezik a Pénzmozgások fül, automatikusan létrehozzuk és felfejlécezzük
+    if (!sheet) {
+      sheet = ss.insertSheet(sheetName);
+      sheet.appendRow([
+        "Dátum",                            // A oszlop
+        "Tranzakció típusa",                // B oszlop
+        "Összeg (forintban)",               // C oszlop
+        "Megjegyzés",                       // D oszlop
+        "Tranzakció egyedi azonosítója",   // E oszlop
+        "Email címe a rögzítő személynek"  // F oszlop
+      ]);
+    }
+
+    const userEmail = Session.getActiveUser().getEmail() || "Ismeretlen";
+    const dateStr = transferData.date;
+    const type = transferData.type;
+    const amount = Number(transferData.amount);
+    const comment = transferData.comment || "";
+
+    if (!dateStr || !amount || amount <= 0) {
+      throw new Error("Érvénytelen dátum vagy összeg!");
+    }
+
+    // Egyedi azonosító generálása (TRF-YYYYMMDD-001)
+    const now = new Date();
+    const timeStamp = Utilities.formatDate(now, APP.TIMEZONE || "Europe/Budapest", "yyyyMMdd");
+    const lastRow = sheet.getLastRow();
+    const seq = String(lastRow).padStart(3, "0");
+    const transferId = "TRF-" + timeStamp + "-" + seq;
+
+    // Új sor hozzáadása a munkalaphoz
+    sheet.appendRow([
+      dateStr,
+      type,
+      amount,
+      comment,
+      transferId,
+      userEmail
+    ]);
+
+    if (typeof writeLog === "function") {
+      writeLog("INFO", "Transfer", "Pénzmozgás rögzítve: " + transferId + " (" + amount + " Ft)");
+    }
+
+    return {
+      success: true,
+      message: "Pénzmozgás sikeresen rögzítve! (Azonosító: " + transferId + ")"
+    };
+
+  } catch (error) {
+    if (typeof writeLog === "function") {
+      writeLog("ERROR", "Transfer", error.message);
+    }
+    throw error;
+  }
+}
