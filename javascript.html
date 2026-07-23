@@ -1,27 +1,16 @@
 <script>
-/**
- * @file javascript.html
- * @description A PayKal WebApp kliensoldali JavaScript logikája.
- */
-
-/* ==========================================================================
-   GLOBÁLIS VÁLTOZÓK
-   ========================================================================== */
 let selectedReceipts = [];
 let paykalChart = null;
 let currentPeriod = "1H";
 let currentIncomeData = null;
 
-/* ==========================================================================
-   ALKALMAZÁS INDÍTÁSA ÉS ESEMÉNYKEZELŐK RÖGZÍTÉSE
-   ========================================================================== */
 document.addEventListener("DOMContentLoaded", function() {
 
   /* 1. Dashboard és Beállítások betöltése */
   loadPayKalDashboard(currentPeriod);
   loadSettings();
 
-  /* 2. Automatikus mai dátumok beállítása a mezőkben */
+  /* 2. Automatikus mai dátumok beállítása */
   try {
     const today = new Date();
     const year = today.getFullYear();
@@ -33,15 +22,15 @@ document.addEventListener("DOMContentLoaded", function() {
     if (document.getElementById("incomeDate")) document.getElementById("incomeDate").value = formattedDate;
     if (document.getElementById("transferDate")) document.getElementById("transferDate").value = formattedDate;
   } catch (e) {
-    console.error("Dátum beállítási hiba:", e);
+    console.error(e);
   }
 
-  /* 3. Navigációs vissza gombok rögzítése */
+  /* 3. Vissza gombok a Dashboardra */
   document.getElementById("backToDashBtn")?.addEventListener("click", () => { showScreen("dashboardView"); loadPayKalDashboard(currentPeriod); });
   document.getElementById("backToDashFromIncomeBtn")?.addEventListener("click", () => { showScreen("dashboardView"); loadPayKalDashboard(currentPeriod); });
   document.getElementById("backToDashFromTransferBtn")?.addEventListener("click", () => { showScreen("dashboardView"); loadPayKalDashboard(currentPeriod); });
 
-  /* 4. Befizető Lenyíló Panel Eseményei */
+  /* 4. Befizető Lenyíló Panel Kezelése */
   document.getElementById("payerSelectTrigger")?.addEventListener("click", function(e) {
     e.stopPropagation();
     document.getElementById("payersDropdownPanel")?.classList.toggle("hidden");
@@ -65,8 +54,35 @@ document.addEventListener("DOMContentLoaded", function() {
     }
     updatePayerBadge();
   });
+function handleFileSelect(e) {
+  const files = Array.from(e.target.files);
+  if (!files.length) return;
 
-  /* 5. Blokk Fotó és Fájl Feltöltés Kezelése */
+  let loadedCount = 0;
+
+  files.forEach((file, index) => {
+    // A név kiszámítása még a beolvasás ELŐTT megtörténik
+    const fileName = file.name || ("blokk_" + (selectedReceipts.length + index + 1) + ".jpg");
+    const reader = new FileReader();
+
+    reader.onload = function(evt) {
+      selectedReceipts.push({
+        data: evt.target.result,
+        name: fileName
+      });
+
+      loadedCount++;
+      // Csak akkor rajzoljuk ki a felületet, ha az ÖSSZES kijelölt fájlt beolvasta
+      if (loadedCount === files.length) {
+        renderReceiptPreviews();
+        document.getElementById("receiptDialog")?.classList.remove("hidden");
+      }
+    };
+
+    reader.readAsDataURL(file);
+  });
+}
+
   document.getElementById("receipt")?.addEventListener("change", handleFileSelect);
   document.getElementById("receiptFile")?.addEventListener("change", handleFileSelect);
 
@@ -81,7 +97,7 @@ document.addEventListener("DOMContentLoaded", function() {
     document.getElementById("receiptDialog")?.classList.add("hidden");
   });
 
-  /* 6. Kiadás Mentés gomb és folyamat */
+  /* 6. Kiadás Mentés gomb */
   document.getElementById("saveButton")?.addEventListener("click", function() {
     const amount = document.getElementById("amount").value;
     const date = document.getElementById("date").value;
@@ -169,7 +185,7 @@ document.addEventListener("DOMContentLoaded", function() {
       .getExpenseId(window.currentExpense.costCenter);
   });
 
-  /* 7. Bevétel Mentés gomb és folyamat */
+  /* 7. Bevétel Mentés gomb */
   document.getElementById("saveIncomeBtn")?.addEventListener("click", function() {
     const date = document.getElementById("incomeDate").value;
     const amount = document.getElementById("incomeAmount").value;
@@ -281,45 +297,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
 });
 
-/* ==========================================================================
-   SEGÉDFÜGGVÉNYEK ÉS UI RENDERELŐK
-   ========================================================================== */
+/* --- KÉPERNYŐ ÉS DASHBOARD NAVIGÁCIÓ --- */
 
-/**
- * Kezeli a fájlkiválasztási eseményt a blokk képek beolvasásához.
- * @param {Event} e - A change esemény objektum.
- */
-function handleFileSelect(e) {
-  const files = Array.from(e.target.files);
-  if (!files.length) return;
-
-  let loadedCount = 0;
-
-  files.forEach((file, index) => {
-    const fileName = file.name || ("blokk_" + (selectedReceipts.length + index + 1) + ".jpg");
-    const reader = new FileReader();
-
-    reader.onload = function(evt) {
-      selectedReceipts.push({
-        data: evt.target.result,
-        name: fileName
-      });
-
-      loadedCount++;
-      if (loadedCount === files.length) {
-        renderReceiptPreviews();
-        document.getElementById("receiptDialog")?.classList.remove("hidden");
-      }
-    };
-
-    reader.readAsDataURL(file);
-  });
-}
-
-/**
- * Megjeleníti a kért képernyőt és elrejti a többit.
- * @param {string} screenId - A megjelenítendő elem ID-ja.
- */
 function showScreen(screenId) {
   const screens = ["dashboardView", "expenseScreen", "incomeScreen", "transferScreen"];
   screens.forEach(id => {
@@ -331,10 +310,6 @@ function showScreen(screenId) {
   if (target) target.classList.remove("hidden");
 }
 
-/**
- * Lekéri a backendről a Dashboard adatait a megadott időszakra.
- * @param {string} period - Időszak szűrő ("1H", "3H", "6H", "1E", "2E", "O").
- */
 function loadPayKalDashboard(period) {
   currentPeriod = period;
   google.script.run
@@ -345,18 +320,14 @@ function loadPayKalDashboard(period) {
     .getPayKalDashboardData(period);
 }
 
-/**
- * Frissíti a Dashboard UI elemeit (egyenlegek, arányok, grafikon).
- * @param {Object} data - A backendről érkező egyenleg és grafikon adatok.
- */
 function renderPayKalDashboardUI(data) {
   if (!data) return;
   document.getElementById('totalBalanceDisplay').innerText = formatHUF(data.totalBalance);
   document.getElementById('cashBalanceDisplay').innerText = formatHUF(data.cashBalance);
   document.getElementById('bankBalanceDisplay').innerText = formatHUF(data.bankBalance);
 
-  const total = data.totalBalance;
-  const cashPercent = total > 0 ? Math.round((data.cashBalance / total) * 100) : 50;
+  var total = data.totalBalance;
+  var cashPercent = total > 0 ? Math.round((data.cashBalance / total) * 100) : 50;
 
   document.getElementById('cashBar').style.width = cashPercent + '%';
   document.getElementById('bankBar').style.width = (100 - cashPercent) + '%';
@@ -364,12 +335,8 @@ function renderPayKalDashboardUI(data) {
   renderLineChart(data.labels, data.values);
 }
 
-/**
- * Kezeli az időszakszűrő gombok váltását.
- * @param {string} period - A kiválasztott időszak kódja.
- */
 function changeTimeFilter(period) {
-  const buttons = document.querySelectorAll('.time-btn');
+  var buttons = document.querySelectorAll('.time-btn');
   buttons.forEach(function(btn) { btn.classList.remove('active'); });
 
   if (window.event && window.event.currentTarget) {
@@ -379,19 +346,14 @@ function changeTimeFilter(period) {
   loadPayKalDashboard(period);
 }
 
-/**
- * Kirajzolja a Chart.js vonaldiagramot a megadott adatsor alapján.
- * @param {Array<string>} labels - X tengely dátum címkék.
- * @param {Array<number>} values - Y tengely egyenleg értékek.
- */
 function renderLineChart(labels, values) {
-  const canvas = document.getElementById('expenseChart');
+  var canvas = document.getElementById('expenseChart');
   if (!canvas) return;
 
-  const ctx = canvas.getContext('2d');
+  var ctx = canvas.getContext('2d');
   if (paykalChart) paykalChart.destroy();
 
-  const gradient = ctx.createLinearGradient(0, 0, 0, 260);
+  var gradient = ctx.createLinearGradient(0, 0, 0, 260);
   gradient.addColorStop(0, 'rgba(37, 99, 235, 0.25)');
   gradient.addColorStop(1, 'rgba(37, 99, 235, 0.0)');
 
@@ -437,18 +399,10 @@ function renderLineChart(labels, values) {
   });
 }
 
-/**
- * Formázza a számértéket magyar forint formátumra (pl. "125 000 Ft").
- * @param {number} amount - A formázandó összeg.
- * @returns {string} Formázott pénzösszeg string.
- */
 function formatHUF(amount) {
   return Number(amount || 0).toLocaleString('hu-HU') + ' Ft';
 }
 
-/**
- * Betölti a beállításokat a backendről és feltölti a lenyíló listákat.
- */
 function loadSettings() {
   google.script.run
     .withSuccessHandler(function(data) {
@@ -478,12 +432,6 @@ function loadSettings() {
     .getSettings();
 }
 
-/**
- * Feltölt egy HTML select elemet opciókkal.
- * @param {string} elementId - A select elem ID-ja.
- * @param {Array<string>} items - Az opciók tömbje.
- * @param {string} placeholder - Az alapértelmezett letiltott opció szövege.
- */
 function fillSelect(elementId, items, placeholder) {
   const select = document.getElementById(elementId);
   if (select && items) {
@@ -497,9 +445,6 @@ function fillSelect(elementId, items, placeholder) {
   }
 }
 
-/**
- * Frissíti a kijelölt befizetők számát mutató jelvényt (badge).
- */
 function updatePayerBadge() {
   const checkedCount = document.querySelectorAll("#payersCheckboxList input[type='checkbox']:checked").length;
   const otherCb = document.getElementById("cb_other_payer");
@@ -512,9 +457,6 @@ function updatePayerBadge() {
   }
 }
 
-/**
- * Kirajzolja a kiválasztott blokk képek előnézeti listáját.
- */
 function renderReceiptPreviews() {
   const previewContainer = document.getElementById("receiptPreview");
   if (!previewContainer) return;
@@ -524,6 +466,7 @@ function renderReceiptPreviews() {
     return;
   }
 
+  /* padding: 0 0 0 90px; -> bal oldali behúzás, margin: 10px 0 0 0; -> felső eltolás */
   let html = '<ul style="list-style: none; padding: 0 0 0 90px; margin: 10px 0 0 0; text-align: left;">';
   selectedReceipts.forEach((item, idx) => {
     html += `<li style="padding: 4px 0; border-bottom: 1px solid #eee; font-size: 14px;">
@@ -535,19 +478,11 @@ function renderReceiptPreviews() {
   previewContainer.innerHTML = html;
 }
 
-/**
- * Eltávolít egy képet a csatolt blokkok közül.
- * @param {number} index - A törlendő kép indexe.
- */
 function removeReceipt(index) {
   selectedReceipts.splice(index, 1);
   renderReceiptPreviews();
 }
 
-/**
- * Megjeleníti a kiadás megerősítő modal ablakát.
- * @param {Object} expense - A kiadás adatai.
- */
 function showSummary(expense) {
   document.getElementById("summary").innerHTML = 
     "<p><strong>Dátum:</strong> " + expense.date + "</p>" +
@@ -563,12 +498,6 @@ function showSummary(expense) {
   document.getElementById("confirmDialog")?.classList.remove("hidden");
 }
 
-/**
- * Rekurzív függvény a blokk képek egyenkénti feltöltéséhez Drive-ba.
- * @param {string} expenseId - Kiadás azonosító.
- * @param {number} index - Aktualis kép indexe.
- * @param {Array<string>} uploadedUrls - Már feltöltött URL-ek tömbje.
- */
 function uploadReceiptImages(expenseId, index, uploadedUrls) {
   const statusBox = document.getElementById("statusProgress");
   if (statusBox) {
@@ -612,9 +541,6 @@ function uploadReceiptImages(expenseId, index, uploadedUrls) {
     .uploadExpenseImage(selectedReceipts[index].data, expenseId, index + 1);
 }
 
-/**
- * Befejezi a kiadás mentését, visszakapcsolja a felületet és visszalép a Dashboardra.
- */
 function finishExpenseSave() {
   document.getElementById("confirmDialog")?.classList.add("hidden");
   resetConfirmButtons();
@@ -623,9 +549,6 @@ function finishExpenseSave() {
   loadPayKalDashboard(currentPeriod);
 }
 
-/**
- * Alaphelyzetbe állítja a megerősítő ablak gombjait és állapotjelzőjét.
- */
 function resetConfirmButtons() {
   const confirmBtn = document.getElementById("confirmButton");
   const cancelBtn = document.getElementById("cancelButton");
@@ -639,9 +562,6 @@ function resetConfirmButtons() {
   }
 }
 
-/**
- * Kiüríti a kiadás rögzítő űrlap mezőit.
- */
 function resetExpenseForm() {
   document.getElementById("amount").value = "";
   document.getElementById("comment").value = "";
@@ -655,10 +575,6 @@ function resetExpenseForm() {
   if (receiptFileInput) receiptFileInput.value = "";
 }
 
-/**
- * Megjeleníti a bevétel megerősítő modal ablakát.
- * @param {Object} income - A bevétel adatai.
- */
 function showIncomeSummary(income) {
   const totalSum = income.amount * income.payers.length;
   document.getElementById("incomeSummary").innerHTML = 
@@ -675,9 +591,6 @@ function showIncomeSummary(income) {
   document.getElementById("incomeConfirmDialog")?.classList.remove("hidden");
 }
 
-/**
- * Kiüríti a bevétel rögzítő űrlap mezőit.
- */
 function resetIncomeForm() {
   document.getElementById("incomeAmount").value = "";
   document.getElementById("incomeComment").value = "";
@@ -691,9 +604,6 @@ function resetIncomeForm() {
   updatePayerBadge();
 }
 
-/**
- * Kiüríti a pénzmozgás rögzítő űrlap mezőit.
- */
 function resetTransferForm() {
   document.getElementById("transferAmount").value = "";
   document.getElementById("transferComment").value = "";

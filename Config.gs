@@ -1,12 +1,3 @@
-/**
- * @file Config.gs
- * @description Az alkalmazás globális konfigurációit és konstansait tartalmazó fájl.
- */
-
-/**
- * Alkalmazásszintű nem módosítható konstansok.
- * @type {Object}
- */
 const APP = Object.freeze({
   NAME: "ExpenseTracker",
   VERSION: "0.1.0",
@@ -22,10 +13,6 @@ const APP = Object.freeze({
   })
 });
 
-/**
- * Táblázat-specifikus konfigurációs beállítások.
- * @type {Object}
- */
 const CONFIG = {
   SHEET_ID: "19Tw4EmA2UcLHyM_Qj2XuBqCWCkLxuKKaCn2ohcYmfrA"
 };
