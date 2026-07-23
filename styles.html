@@ -592,7 +592,6 @@ input::placeholder, textarea::placeholder {
     object-fit: contain;
   }
 
-
   /* ==========================================
    MOBILRA OPTIMALIZÁLT STÍLUSOK (Reszponzivitás)
    ========================================== */
@@ -653,9 +652,11 @@ input::placeholder, textarea::placeholder {
     margin-left: 0;
   }
 
-  .footer-logo:first-child img,
+  .footer-logo:first-child img,{
+    max-height: 270px!important;
+  }
   .footer-logo:last-child img {
-    max-height: 120px;
+    max-height: 320px!important;
   }
 }
 
