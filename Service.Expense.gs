@@ -1,5 +1,16 @@
 /**
- * Expense mentési szolgáltatás
+ * @file Service.Expense.gs
+ * @description Kiadások, Bevételek és Pénzmozgások adatbázisba (Google Sheet) történő rögzítése.
+ */
+
+/**
+ * Kiadás rögzítése a "Költségek" munkalapra rich-text hivatkozásokkal és metaadatokkal.
+ *
+ * @param {Object} expense - A kiadás objektum (date, amount, costCenter, paymentMethod, comment).
+ * @param {Array<string>} [imageUrls=[]] - Feltöltött blokk képek közvetlen URL hivatkozásai.
+ * @param {string|null} [customId=null] - Előre generált egyedi azonosító.
+ * @param {Object|null} [gpsCoords=null] - GPS koordináták {lat, lng} formátumban.
+ * @returns {Object} Mentési eredmény (success, id, message).
  */
 function saveExpenseData(expense, imageUrls = [], customId = null, gpsCoords = null) {
   try {
@@ -11,8 +22,6 @@ function saveExpenseData(expense, imageUrls = [], customId = null, gpsCoords = n
     }
 
     const id = customId || generateExpenseId(expense.costCenter);
-
-    // Beküldő Google e-mail címének kiolvasása
     const userEmail = Session.getActiveUser().getEmail() || "Ismeretlen";
 
     sheet.appendRow([
@@ -32,19 +41,19 @@ function saveExpenseData(expense, imageUrls = [], customId = null, gpsCoords = n
 
     // 1. Blokk képek linkelése (E oszlop = 5. oszlop)
     if (imageUrls && imageUrls.length > 0) {
-      let labels = [];
+      const labels = [];
       for (let i = 0; i < imageUrls.length; i++) {
         labels.push(String(i + 1));
       }
       
       const fullText = labels.join(" | "); 
-      let richTextBuilder = SpreadsheetApp.newRichTextValue().setText(fullText);
+      const richTextBuilder = SpreadsheetApp.newRichTextValue().setText(fullText);
 
       let currentOffset = 0;
       for (let i = 0; i < imageUrls.length; i++) {
-        let label = String(i + 1);
-        let start = currentOffset;
-        let end = start + label.length;
+        const label = String(i + 1);
+        const start = currentOffset;
+        const end = start + label.length;
 
         richTextBuilder.setLinkUrl(start, end, imageUrls[i]);
         currentOffset = end + 3; 
@@ -78,6 +87,12 @@ function saveExpenseData(expense, imageUrls = [], customId = null, gpsCoords = n
   }
 }
 
+/**
+ * Bevételek rögzítése a "Bevételek" munkalapra (befizetőkként külön sorban).
+ *
+ * @param {Object} incomeData - A bevételek adatai (date, purpose, amount, paymentMethod, payers, comment).
+ * @returns {Object} Mentési eredmény (success, count, message).
+ */
 function saveIncomeData(incomeData) {
   try {
     const ss = SpreadsheetApp.openById(CONFIG.SHEET_ID);
@@ -99,7 +114,7 @@ function saveIncomeData(incomeData) {
       throw new Error("Legalább egy befizetőt meg kell adni!");
     }
 
-    const now = new Date(); // Pontos rögzítési időbélyeg
+    const now = new Date();
     const timeStamp = Utilities.formatDate(now, APP.TIMEZONE || "Europe/Budapest", "yyyyMMdd");
     const lastRow = sheet.getLastRow();
 
@@ -111,7 +126,6 @@ function saveIncomeData(incomeData) {
       const id = "INC-" + timeStamp + "-" + seq;
       ids.push(id);
 
-      // Oszlopsorrend összerakása (9 oszlop):
       rowsToAppend.push([
         dateStr,         // A: Dátum
         purpose,         // B: Befizetés célja
@@ -121,13 +135,12 @@ function saveIncomeData(incomeData) {
         comment,         // F: Megjegyzés
         id,              // G: Fizetés egyedi azonosítója
         userEmail,       // H: Email címe a rögzítő személynek
-        now              // I: Rögzítés ideje (ÉÉÉÉ.MM.DD HH:MM:SS)
+        now              // I: Rögzítés ideje
       ]);
     });
 
     if (rowsToAppend.length > 0) {
       const startRow = lastRow + 1;
-      // 9 oszlop terjedelmű írás a lapra
       sheet.getRange(startRow, 1, rowsToAppend.length, 9).setValues(rowsToAppend);
     }
 
@@ -150,7 +163,10 @@ function saveIncomeData(incomeData) {
 }
 
 /**
- * Pénzmozgás mentési szolgáltatás (G oszlop időbélyeggel)
+ * Pénzmozgások rögzítése a "Pénzmozgások" munkalapra.
+ *
+ * @param {Object} transferData - A pénzmozgás adatai (date, type, amount, comment).
+ * @returns {Object} Mentési eredmény (success, message).
  */
 function saveTransferData(transferData) {
   try {
@@ -172,14 +188,12 @@ function saveTransferData(transferData) {
       throw new Error("Érvénytelen dátum vagy összeg!");
     }
 
-    // Egyedi azonosító generálása és pontos rögzítési időbélyeg
     const now = new Date();
     const timeStamp = Utilities.formatDate(now, APP.TIMEZONE || "Europe/Budapest", "yyyyMMdd");
     const lastRow = sheet.getLastRow();
     const seq = String(lastRow).padStart(3, "0");
     const transferId = "TRF-" + timeStamp + "-" + seq;
 
-    // Új sor hozzáadása a munkalaphoz (G oszlopban a pontos rögzítési idővel)
     sheet.appendRow([
       dateStr,     // A: Dátum
       type,        // B: Tranzakció típusa
@@ -187,7 +201,7 @@ function saveTransferData(transferData) {
       comment,     // D: Megjegyzés
       transferId,  // E: Tranzakció egyedi azonosítója
       userEmail,   // F: Email címe a rögzítő személynek
-      now          // G: Rögzítés ideje (ÉÉÉÉ.MM.DD HH:MM:SS)
+      now          // G: Rögzítés ideje
     ]);
 
     if (typeof writeLog === "function") {
