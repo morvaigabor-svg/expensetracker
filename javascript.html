@@ -54,25 +54,37 @@ document.addEventListener("DOMContentLoaded", function() {
     }
     updatePayerBadge();
   });
+function handleFileSelect(e) {
+  const files = Array.from(e.target.files);
+  if (!files.length) return;
 
-  /* 5. Blokk / Kép feltöltés eseménykezelők */
-  document.getElementById("receipt")?.addEventListener("change", function(e) {
-    const file = e.target.files[0];
-    if (!file) return;
+  let loadedCount = 0;
 
-    const fileName = file.name || ("blokk_" + (selectedReceipts.length + 1) + ".jpg");
-
+  files.forEach((file, index) => {
+    // A név kiszámítása még a beolvasás ELŐTT megtörténik
+    const fileName = file.name || ("blokk_" + (selectedReceipts.length + index + 1) + ".jpg");
     const reader = new FileReader();
+
     reader.onload = function(evt) {
       selectedReceipts.push({
         data: evt.target.result,
         name: fileName
       });
-      renderReceiptPreviews();
-      document.getElementById("receiptDialog")?.classList.remove("hidden");
+
+      loadedCount++;
+      // Csak akkor rajzoljuk ki a felületet, ha az ÖSSZES kijelölt fájlt beolvasta
+      if (loadedCount === files.length) {
+        renderReceiptPreviews();
+        document.getElementById("receiptDialog")?.classList.remove("hidden");
+      }
     };
+
     reader.readAsDataURL(file);
   });
+}
+
+  document.getElementById("receipt")?.addEventListener("change", handleFileSelect);
+  document.getElementById("receiptFile")?.addEventListener("change", handleFileSelect);
 
   document.getElementById("moreReceiptButton")?.addEventListener("click", function() {
     document.getElementById("receiptDialog")?.classList.add("hidden");
@@ -454,11 +466,12 @@ function renderReceiptPreviews() {
     return;
   }
 
-  let html = '<ul style="list-style: none; padding: 0; margin: 10px 0 0 0;">';
+  /* padding: 0 0 0 90px; -> bal oldali behúzás, margin: 10px 0 0 0; -> felső eltolás */
+  let html = '<ul style="list-style: none; padding: 0 0 0 90px; margin: 10px 0 0 0; text-align: left;">';
   selectedReceipts.forEach((item, idx) => {
     html += `<li style="padding: 4px 0; border-bottom: 1px solid #eee; font-size: 14px;">
       <span><strong>${idx + 1}. kép</strong> -- ${item.name}</span>
-      <sup onclick="removeReceipt(${idx})" style="cursor: pointer; color: #888; font-weight: bold; margin-left: 6px; font-size: 13px;" title="Törlés">✕</sup>
+      <sup onclick="removeReceipt(${idx})" style="cursor: pointer; color: #888; font-weight: bold; margin-left: 6px; font-size: 18px;" title="Törlés">✕</sup>
     </li>`;
   });
   html += '</ul>';
@@ -558,6 +571,8 @@ function resetExpenseForm() {
   renderReceiptPreviews();
   const receiptInput = document.getElementById("receipt");
   if (receiptInput) receiptInput.value = "";
+  const receiptFileInput = document.getElementById("receiptFile");
+  if (receiptFileInput) receiptFileInput.value = "";
 }
 
 function showIncomeSummary(income) {

@@ -21,7 +21,7 @@
       
       <header class="paykal-header">
         <h1>PayKal</h1>
-        <div class="subtitle">Wallet of Calasanzt</div>
+        <div class="subtitle">Wallet of Calasanz</div>
       </header>
 
       <main class="dashboard-content">
@@ -122,8 +122,16 @@
 
         <label>Blokk feltöltése</label>
         <div class="upload-box">
-          <label for="receipt">📷 Blokk fotózása</label>
-          <input type="file" id="receipt" accept="image/*" capture="environment">
+          <div class="upload-buttons">
+            <!-- Kamera indítása -->
+            <label for="receipt">📷 Blokk fotózása</label>
+            <input type="file" id="receipt" accept="image/*" capture="environment">
+
+            <!-- Fájl/Galéria megnyitása -->
+            <label for="receiptFile">📎 Fájl csatolása</label>
+            <!-- Fájl/Galéria megnyitása - többszörös kijelöléssel -->
+            <input type="file" id="receiptFile" accept="image/*,.pdf" multiple>
+          </div>
           <div id="receiptPreview"></div>
         </div>
 

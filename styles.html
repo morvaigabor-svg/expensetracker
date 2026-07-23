@@ -203,24 +203,42 @@ textarea {
 }
 
   .upload-box {
-    border: 2px dashed #93c5fd;
-    padding: 26px;
-    text-align: center;
-    border-radius: var(--radius-lg);
-    background: var(--primary-light);
-    margin-top: 10px;
-    transition: var(--transition);
-  }
+  border: 2px dashed #93c5fd;
+  padding: 20px 16px;
+  text-align: center;
+  border-radius: var(--radius-lg);
+  background: var(--primary-light);
+  margin-top: 10px;
+  transition: var(--transition);
+}
 
-  .upload-box label {
-    color: var(--primary);
-    cursor: pointer;
-    margin: 0;
-    font-size: 26px;
-    font-weight: 700;
-  }
+/* ÚJ: A két gomb egymás melletti/alatti elrendezése */
+.upload-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 50px;
+  flex-wrap: wrap; /* Mobilon, ha nem fér el egymás mellett, szépen egymás alá ugrik */
+}
 
-  input[type="file"] { display: none; }
+.upload-box label {
+  color: var(--primary);
+  cursor: pointer;
+  margin: 0;
+  font-size: 32px; /* 26px helyett 20px, hogy két gombként mobilon is kényelmesen elférjenek */
+  font-weight: 700;
+  padding: 12px 12px;
+  border: 2px solid #1e3a8a;;
+  transition: var(--transition);
+}
+
+.upload-box label:hover {
+  background: rgba(147, 197, 253, 0.25); /* Finom visszajelzés rávitelnél */
+}
+
+input[type="file"] { display: none; }
+
+
 
   button {
     width: 100%;
